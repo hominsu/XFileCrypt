@@ -2,91 +2,62 @@
 // Created by Homin Su on 2021/10/2.
 //
 
-#include <sstream>
-#include <memory>
-#include <memory_resource>
+#include <iostream>
+#include <string>
+#include <list>
+#include <filesystem>
 
-#include "x_thread_pool/x_thread_pool.h"
-#include "task/read_task.h"
-#include "task/crypt_task.h"
-#include "task/write_task.h"
+#include "task/file_crypt.h"
 
-int main() {
-  std::string password = "12345678";
-
-  XThreadPool::Get()->Init();
-
-  // 加密
-  {
-    // 创建线程安全的内存池
-    auto memory_resource = std::make_shared<std::pmr::synchronized_pool_resource>();
-
-    // 读取任务
-    auto read_task = std::make_shared<ReadTask>();
-    read_task->set_memory_resource(memory_resource);
-    read_task->Init("../test/src/WechatIMG1.jpeg");
-
-    // 加密任务
-    auto crypt_task = std::make_shared<CryptTask>();
-    crypt_task->set_memory_resource(memory_resource);
-    crypt_task->Init(password);
-    crypt_task->set_is_encrypt(true);
-
-    // 写出任务
-    auto write_task = std::make_shared<WriteTask>();
-    write_task->set_memory_resource(memory_resource);
-    write_task->Init("../test/dec/WechatIMG1.crypt");
-
-    // 设置责任链: read_task -> crypt_task -> write_task
-    read_task->set_next(crypt_task);
-    crypt_task->set_next(write_task);
-
-    // 任务加入线程池
-    XThreadPool::Get()->AddTask(read_task);
-    XThreadPool::Get()->AddTask(crypt_task);
-    XThreadPool::Get()->AddTask(write_task);
-
-    // 等待任务执行完成
-    read_task->get_return();
-    crypt_task->get_return();
-    write_task->get_return();
+int main(int _argc, char *_argv[]) {
+  if (_argc != 5) {
+    std::cerr << "para error!" << std::endl;
+    std::cout << "\tEncrypt folder: " << _argv[0] << " -e src_dir dst_dir password" << std::endl;
+    std::cout << "\tDecrypt folder: " << _argv[0] << " -d src_dir dst_dir password" << std::endl;
+    exit(EXIT_FAILURE);
   }
 
-  // 解密
-  {
-    // 创建线程安全的内存池
-    auto memory_resource = std::make_shared<std::pmr::synchronized_pool_resource>();
+  std::string option = _argv[1];    // 加解密选项
+  std::string in_file = _argv[2];   // 输入文件夹
+  std::string out_file = _argv[3];  // 输入文件夹
+  std::string password = _argv[4];  // 密码
 
-    // 读取任务
-    auto read_task = std::make_shared<ReadTask>();
-    read_task->set_memory_resource(memory_resource);
-    read_task->Init("../test/dec/WechatIMG1.crypt");
+  bool is_encrypt{};
+  if ("-e" == option) {
+    is_encrypt = true;
+  } else if ("-d" == option) {
+    is_encrypt = false;
+  }
 
-    // 解密任务
-    auto crypt_task = std::make_shared<CryptTask>();
-    crypt_task->set_memory_resource(memory_resource);
-    crypt_task->Init(password);
-    crypt_task->set_is_encrypt(false);
+  // 创建输出文件夹
+  std::filesystem::create_directories(out_file);
 
-    // 写出任务
-    auto write_task = std::make_shared<WriteTask>();
-    write_task->set_memory_resource(memory_resource);
-    write_task->Init("../test/enc/WechatIMG1.jpeg");
+  std::list<std::shared_ptr<FileCrypt>> file_crypt_list;
 
-    // 设置责任链: read_task -> crypt_task -> write_task
-    read_task->set_next(crypt_task);
-    crypt_task->set_next(write_task);
+  // 遍历输入目录
+  for (auto &it: std::filesystem::directory_iterator(in_file)) {
+    // 只处理文件
+    if (!it.is_regular_file()) {
+      continue;
+    }
 
-    // 任务加入线程池
-    XThreadPool::Get()->AddTask(read_task);
-    XThreadPool::Get()->AddTask(crypt_task);
-    XThreadPool::Get()->AddTask(write_task);
+    auto file_crypt = std::make_shared<FileCrypt>();
 
-    // 等待任务执行完成
-    read_task->get_return();
-    crypt_task->get_return();
-    write_task->get_return();
+    file_crypt->Start(it.path().string(),
+                      out_file + "/" + it.path().filename().string(),
+                      password,
+                      is_encrypt);
+
+    file_crypt_list.push_back(file_crypt);
+  }
+
+  // 等待任务执行完成
+  for (auto &file_crypt: file_crypt_list) {
+    file_crypt->Wait();
   }
 
   return 0;
 }
+
+// 加密: build/XFileCrypt -e test/src test/enc 123456
+// 解密: build/XFileCrypt -d test/enc test/dec 123456
