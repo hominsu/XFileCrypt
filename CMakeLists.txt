@@ -46,6 +46,7 @@ endif ()
 # ============================== add executable and link libraries ==============================
 file(GLOB ProjectSRC
         "x_thread_pool/*.cc"
+        "task/crypt/*.cc"
         "task/read/*.cc"
         "task/*.cc"
         "crypt/*.cc"
