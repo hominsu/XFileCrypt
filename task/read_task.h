@@ -8,7 +8,7 @@
 #include <string>
 #include <fstream>
 
-#include "../task_base.h"
+#include "task_base.h"
 
 /**
  * @brief 读取任务

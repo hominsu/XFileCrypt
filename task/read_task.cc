@@ -6,7 +6,7 @@
 #include <iostream>
 
 #include "read_task.h"
-#include "../../data/data.h"
+#include "../memory/data.h"
 
 /**
  * @brief 初始化读取任务，获取文件大小
@@ -81,5 +81,5 @@ void ReadTask::Main() {
   std::cout << std::endl << "XReadTask::Main() End" << std::endl;
 #endif
 
-  set_return(100);
+  set_return(0);
 }

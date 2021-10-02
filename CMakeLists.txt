@@ -47,10 +47,11 @@ endif ()
 file(GLOB ProjectSRC
         "x_thread_pool/*.cc"
         "task/crypt/*.cc"
+        "task/write/*.cc"
         "task/read/*.cc"
-        "task/*.cc"
+        "memory/*.cc"
         "crypt/*.cc"
-        "data/*.cc"
+        "task/*.cc"
         "*.cc")
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)

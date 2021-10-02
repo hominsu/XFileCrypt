@@ -5,8 +5,8 @@
 #include <iostream>
 
 #include "crypt_task.h"
-#include "../../memory/data.h"
-#include "../../crypt/des_crypt.h"
+#include "../memory/data.h"
+#include "../crypt/des_crypt.h"
 
 /**
  * @brief 初始化加密任务
@@ -69,6 +69,8 @@ void CryptTask::Main() {
 #ifdef Debug
   std::cout << std::endl << "XCryptTask::Main() End" << std::endl;;
 #endif
+
+  set_return(0);
 }
 
 /**

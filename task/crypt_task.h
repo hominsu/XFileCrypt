@@ -5,7 +5,7 @@
 #ifndef XFILECRYPT_TASK_CRYPT_CRYPT_TASK_H_
 #define XFILECRYPT_TASK_CRYPT_CRYPT_TASK_H_
 
-#include "../task_base.h"
+#include "task_base.h"
 
 class DesCrypt;
 

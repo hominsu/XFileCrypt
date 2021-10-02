@@ -1,0 +1,12 @@
+//
+// Created by Homin Su on 2021/10/2.
+//
+
+#ifndef XFILECRYPT_TASK_FILE_CRYPT_X_FILE_CRYPT_H_
+#define XFILECRYPT_TASK_FILE_CRYPT_X_FILE_CRYPT_H_
+
+class XFileCrypt {
+
+};
+
+#endif //XFILECRYPT_TASK_FILE_CRYPT_X_FILE_CRYPT_H_
