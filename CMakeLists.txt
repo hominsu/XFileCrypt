@@ -46,9 +46,10 @@ endif ()
 # ============================== add executable and link libraries ==============================
 file(GLOB ProjectSRC
         "x_thread_pool/*.cc"
+        "task/read/*.cc"
+        "task/*.cc"
         "crypt/*.cc"
         "data/*.cc"
-        "task/*.cc"
         "*.cc")
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)

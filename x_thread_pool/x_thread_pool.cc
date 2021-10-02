@@ -20,7 +20,7 @@ XThreadPool::~XThreadPool() {
  * @brief 初始化所有线程，并启动线程
  * @param _thread_nums 线程数量
  */
-void XThreadPool::Init(size_t _thread_nums = std::thread::hardware_concurrency()) {
+void XThreadPool::Init(size_t _thread_nums) {
   std::unique_lock<std::shared_mutex> lock(mutex_);
   thread_nums_ = _thread_nums;
 
@@ -60,13 +60,16 @@ void XThreadPool::Stop() {
   // 设置退出状态
   is_running_ = false;
 
-  // 独占锁
-  std::unique_lock<std::shared_mutex> lock(mutex_);
+  // 通知全部线程
+  cv_.notify_all();
 
   // 等待线程结束任务退出
   for (auto &th: threads_) {
     th->join();
   }
+
+  // 独占锁
+  std::unique_lock<std::shared_mutex> lock(mutex_);
 
   // 清理线程池中的线程对象
   threads_.clear();
@@ -86,7 +89,7 @@ void XThreadPool::Run() {
     // 获取任务
     auto task = GetTask();
     // 获取到空指针, continue之后然后继续获取或退出线程
-    if (!task) {
+    if (nullptr == task) {
       continue;
     }
 
@@ -135,11 +138,10 @@ std::shared_ptr<XTaskBase> XThreadPool::GetTask() {
   // 独占锁，防止抢占
   std::unique_lock<std::shared_mutex> lock(mutex_);
 
-  // 当线程池正在运行，任务队列为空就阻塞
-  // 线程池处于关闭状态或任务队列不为空时不阻塞
-  cv_.wait(lock, [this] {
-    return !is_running_ || !x_tasks_.empty();
-  });
+  // 当任务队列为空就阻塞
+  if (x_tasks_.empty()) {
+    cv_.wait(lock);
+  }
 
   // 退出
   if (!is_running_) {
