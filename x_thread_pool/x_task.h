@@ -25,7 +25,7 @@ class XTaskBase {
  */
 template<class ret_type,
     class = typename std::enable_if
-        <!std::is_same<typename std::__uncvref<ret_type>::type, std::thread>::value>::type
+        <!std::is_same<ret_type, std::thread>::value>::type
 >
 class XTask : public XTaskBase {
  private:
