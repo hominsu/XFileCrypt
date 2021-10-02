@@ -1,0 +1,12 @@
+.idea/
+.vscode/
+cmake-build-*/
+rtf/
+cert/
+CMakeFiles/
+
+test/
+!test/*.cc
+
+build/
+!build/gen.sh
