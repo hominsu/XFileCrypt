@@ -11,6 +11,12 @@
 
 #include "des_crypt.h"
 
+/**
+ * @brief 初始化密钥
+ * @details DES 加密算法，密钥 8 位，多余丢弃，不足补 0
+ * @param _password 8 位密钥
+ * @return bool
+ */
 bool DesCrypt::Init(const std::string &_password) {
   const_DES_cblock key = {0}; // 少的补零
 
@@ -25,11 +31,20 @@ bool DesCrypt::Init(const std::string &_password) {
   return true;
 }
 
+/**
+ * @brief 加密数据，加密到结尾填充数据
+ * @detail 加密到结尾会使用 PKCS7 Padding 数据填充算法进行填充
+ * @param _in_data 输入数据
+ * @param _in_size 输入数据大小
+ * @param _out_data 输出数据
+ * @param _is_end 是否加密到结尾
+ * @return 返回加密后的数据，有可能大于输入（结尾处）
+ */
 size_t DesCrypt::Encrypt(const char *_in_data, size_t _in_size, char *_out_data, bool _is_end) {
   if (nullptr == _in_data || nullptr == _out_data || _in_size <= 0) {
     return 0;
   }
-  size_t write_size = 0;
+  size_t write_size = 0;  // 加密后的字节数
 
   const_DES_cblock in = {0};  // 输入
   DES_cblock out = {0}; // 输出
@@ -38,7 +53,7 @@ size_t DesCrypt::Encrypt(const char *_in_data, size_t _in_size, char *_out_data,
   int padding_num = static_cast<int>(block_size - _in_size % block_size); // 填充数量，同时也是填充的内容，如果是 8 就填充 8
   int padding_offset = static_cast<int>(_in_size % block_size); // 填充位置
 
-  size_t data_size;
+  size_t data_size; // 每次加密的数据大小
 
   for (size_t i = 0; i < _in_size; i += block_size) {
 
@@ -83,16 +98,24 @@ size_t DesCrypt::Encrypt(const char *_in_data, size_t _in_size, char *_out_data,
   return write_size;
 }
 
+/**
+ * @brief 解密数据，解密到结尾会删除填充数据
+ * @param _in_data 输入数据
+ * @param _in_size 输入数据大小
+ * @param _out_data 输出数据
+ * @param _is_end 是否加密到结尾
+ * @return 返回解密后的数据，有可能小雨输入（结尾处）
+ */
 size_t DesCrypt::Decrypt(const char *_in_data, size_t _in_size, char *_out_data, bool _is_end) {
   if (nullptr == _out_data || nullptr == _in_data || _in_size <= 0) {
     return 0;
   }
-  size_t write_size = 0;
+  size_t write_size = 0;  // 加密后的字节数
 
   const_DES_cblock in{0};  // 输入
   DES_cblock out{0}; // 输出
   const size_t block_size = sizeof(const_DES_cblock);  // 加密数据块大小
-  size_t data_size;
+  size_t data_size; // 每次加密的数据大小
 
   for (size_t i = 0; i < _in_size; i += block_size) {
     // 输入数据拷贝到 in 中
@@ -124,6 +147,11 @@ size_t DesCrypt::Decrypt(const char *_in_data, size_t _in_size, char *_out_data,
   return write_size;
 }
 
+/**
+ * @brief 获取需要填充的字节数
+ * @param _data_size
+ * @return 需要填充的字节数
+ */
 size_t DesCrypt::GetMaxPaddingSize(size_t _data_size) {
   const size_t block_size = sizeof(const_DES_cblock); // 加密数据块大小
   size_t padding_num = block_size - _data_size % block_size;  // 填充数量，同时也是填充的内容，如果是 8 就填充 8

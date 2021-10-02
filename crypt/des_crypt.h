@@ -10,7 +10,7 @@
 #include <openssl/des.h>
 
 /**
- * @brief
+ * @brief Des 加密
  */
 class DesCrypt {
  private:
@@ -21,7 +21,7 @@ class DesCrypt {
    * @brief 初始化密钥
    * @details DES 加密算法，密钥 8 位，多余丢弃，不足补 0
    * @param _password 8 位密钥
-   * @return
+   * @return bool
    */
   bool Init(const std::string &_password);
 
@@ -49,7 +49,7 @@ class DesCrypt {
   /**
    * @brief 获取需要填充的字节数
    * @param _data_size
-   * @return
+   * @return 需要填充的字节数
    */
   static size_t GetMaxPaddingSize(size_t _data_size);
 };
