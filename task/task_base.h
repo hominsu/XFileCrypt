@@ -8,6 +8,7 @@
 #include <list>
 #include <memory>
 #include <memory_resource>
+#include <shared_mutex>
 
 #include "../x_thread_pool/x_task.h"
 
