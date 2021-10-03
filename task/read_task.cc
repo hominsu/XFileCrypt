@@ -17,24 +17,7 @@ bool ReadTask::Init(const std::string &_file_name) {
   if (_file_name.empty()) {
     return false;
   }
-  ifs_.open(_file_name, std::ios::binary);
-  if (!ifs_) {
-    std::cerr << "open file: " << _file_name << " failed" << std::endl;
-    return false;
-  }
-#ifdef Debug
-  std::cout << "open file: " << _file_name << " success" << std::endl;
-#endif
-
-  // 计算文件长度
-  ifs_.seekg(0, std::ios::end);
-  data_bytes_ = ifs_.tellg();
-  ifs_.seekg(0, std::ios::beg);
-
-#ifdef Debug
-  std::cout << "file size = " << data_bytes_ << std::endl;
-#endif
-
+  file_name_ = _file_name;
   return true;
 }
 
@@ -45,6 +28,12 @@ void ReadTask::Main() {
 #ifdef Debug
   std::cout << "XReadTask::Main() Start" << std::endl;
 #endif
+
+  if (!OpenFile()) {
+    set_return(1);
+    return;
+  }
+
   while (is_running()) {
     if (ifs_.eof()) {
       break;
@@ -82,4 +71,29 @@ void ReadTask::Main() {
 #endif
 
   set_return(0);
+}
+
+/**
+ * @brief 打开文件
+ * @return 是否打开
+ */
+bool ReadTask::OpenFile() {
+  ifs_.open(file_name_, std::ios::binary);
+  if (!ifs_) {
+    std::cerr << "open file: " << file_name_ << " failed" << std::endl;
+    return false;
+  }
+#ifdef Debug
+  std::cout << "open file: " << file_name_ << " success" << std::endl;
+#endif
+
+  // 计算文件长度
+  ifs_.seekg(0, std::ios::end);
+  data_bytes_ = ifs_.tellg();
+  ifs_.seekg(0, std::ios::beg);
+
+#ifdef Debug
+  std::cout << "file size = " << data_bytes_ << std::endl;
+#endif
+  return true;
 }

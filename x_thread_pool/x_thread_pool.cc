@@ -123,7 +123,7 @@ void XThreadPool::AddTask(std::shared_ptr<XTaskBase> &&_x_task) {
     _x_task->is_running = [this] {
       return is_running();
     };
-    x_tasks_.push(_x_task);
+    x_tasks_.push_back(_x_task);
   }
 
   // 通知一个线程取任务
@@ -155,7 +155,7 @@ std::shared_ptr<XTaskBase> XThreadPool::GetTask() {
 
   // 取出队头任务
   auto task = x_tasks_.front();
-  x_tasks_.pop();
+  x_tasks_.pop_front();
   return task;
 }
 

@@ -7,6 +7,7 @@
 
 #include <string>
 #include <memory>
+#include <memory_resource>
 
 class ReadTask;
 class WriteTask;
@@ -16,6 +17,10 @@ class CryptTask;
  * @brief 文件加解密
  */
 class FileCrypt {
+ public:
+  std::string in_file_;
+  std::string out_file_;
+
  private:
   std::shared_ptr<ReadTask> read_task_;    ///< 读取任务
   std::shared_ptr<WriteTask> write_task_;  ///< 写出任务
@@ -30,7 +35,11 @@ class FileCrypt {
    * @param _is_encrypt 加密还是解密
    * @return 是否加密成功
    */
-  bool Start(const std::string &_in_file, const std::string &_out_file, const std::string &_password, bool _is_encrypt);
+  bool Start(const std::string &_in_file,
+             const std::string &_out_file,
+             const std::string &_password,
+             bool _is_encrypt,
+             std::shared_ptr<std::pmr::synchronized_pool_resource> &_memory_resource);
 
   /**
    * @brief 等待加解密完成

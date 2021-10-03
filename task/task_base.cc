@@ -8,8 +8,8 @@
  * @brief 设置内存池
  * @param _memory_resource 内存池
  */
-void TaskBase::set_memory_resource(std::shared_ptr<std::pmr::memory_resource> _memory_resource) {
-  memory_resource_ = std::move(_memory_resource);
+void TaskBase::set_memory_resource(std::shared_ptr<std::pmr::synchronized_pool_resource> &_memory_resource) {
+  memory_resource_ = _memory_resource;
 }
 
 /**

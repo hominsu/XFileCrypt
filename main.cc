@@ -34,6 +34,9 @@ int main(int _argc, char *_argv[]) {
 
   std::list<std::shared_ptr<FileCrypt>> file_crypt_list;
 
+  // 创建线程安全的内存池
+  auto memory_resource = std::make_shared<std::pmr::synchronized_pool_resource>();
+
   // 遍历输入目录
   for (auto &it: std::filesystem::directory_iterator(in_file)) {
     // 只处理文件
@@ -43,17 +46,22 @@ int main(int _argc, char *_argv[]) {
 
     auto file_crypt = std::make_shared<FileCrypt>();
 
-    file_crypt->Start(it.path().string(),
-                      out_file + "/" + it.path().filename().string(),
-                      password,
-                      is_encrypt);
-
-    file_crypt_list.push_back(file_crypt);
+    auto ok = file_crypt->Start(it.path().string(),
+                                out_file + "/" + it.path().filename().string(),
+                                password,
+                                is_encrypt,
+                                memory_resource);
+    if (ok) {
+      file_crypt_list.push_back(file_crypt);
+    }
   }
 
   // 等待任务执行完成
+  size_t task_num = 0;
   for (auto &file_crypt: file_crypt_list) {
     file_crypt->Wait();
+    std::cout << ++task_num << ": in: [" << file_crypt->in_file_ << "], out: [" << file_crypt->out_file_ << "]"
+              << std::endl;
   }
 
   return 0;

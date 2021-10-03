@@ -15,7 +15,8 @@
  */
 class ReadTask : public TaskBase {
  private:
-  std::ifstream ifs_; ///< 读取文件
+  std::ifstream ifs_;     ///< 读取文件流
+  std::string file_name_; ///< 文件路径
 
  public:
   /**
@@ -30,6 +31,12 @@ class ReadTask : public TaskBase {
    * 线程入口函数
    */
   void Main() override;
+
+  /**
+   * @brief 打开文件
+   * @return 是否打开
+   */
+  bool OpenFile();
 };
 
 #endif //XFILECRYPT_TASK_READ_READ_TASK_H_

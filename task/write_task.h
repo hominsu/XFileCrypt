@@ -16,6 +16,7 @@
 class WriteTask : public TaskBase {
  private:
   std::ofstream ofs_;
+  std::string file_name_; ///< 文件路径
 
  public:
   /**
@@ -30,6 +31,12 @@ class WriteTask : public TaskBase {
    * @brief 线程主函数
    */
   void Main() override;
+
+  /**
+   * @brief 打开文件
+   * @return 是否打开
+   */
+  bool OpenFile();
 };
 
 #endif //XFILECRYPT_TASK_WRITE_WRITE_TASK_H_

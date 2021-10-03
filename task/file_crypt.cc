@@ -24,31 +24,36 @@ std::once_flag flag;  ///< 函数单次执行标识
 bool FileCrypt::Start(const std::string &_in_file,
                       const std::string &_out_file,
                       const std::string &_password,
-                      bool _is_encrypt) {
+                      bool _is_encrypt,
+                      std::shared_ptr<std::pmr::synchronized_pool_resource> &_memory_resource) {
 
   // 只初始化一次
   std::call_once(flag, [] {
-    XThreadPool::Get()->Init();
+    XThreadPool::Get()->Init(1);
   });
 
-  // 创建线程安全的内存池
-  auto memory_resource = std::make_shared<std::pmr::synchronized_pool_resource>();
+  in_file_ = _in_file;
+  out_file_ = _out_file;
 
   // 读取任务
   read_task_ = std::make_shared<ReadTask>();
-  read_task_->Init(_in_file);
-  read_task_->set_memory_resource(memory_resource);
-
-  // 加解密任务
-  crypt_task_ = std::make_shared<CryptTask>();
-  crypt_task_->set_memory_resource(memory_resource);
-  crypt_task_->Init(_password);
-  crypt_task_->set_is_encrypt(_is_encrypt);
+  if (!read_task_->Init(_in_file)) {
+    return false;
+  }
+  read_task_->set_memory_resource(_memory_resource);
 
   // 写出任务
   write_task_ = std::make_shared<WriteTask>();
-  write_task_->set_memory_resource(memory_resource);
-  write_task_->Init(_out_file);
+  if (!write_task_->Init(_out_file)) {
+    return false;
+  }
+  write_task_->set_memory_resource(_memory_resource);
+
+  // 加解密任务
+  crypt_task_ = std::make_shared<CryptTask>();
+  crypt_task_->set_memory_resource(_memory_resource);
+  crypt_task_->Init(_password);
+  crypt_task_->set_is_encrypt(_is_encrypt);
 
   // 设置责任链: read_task -> crypt_task -> write_task
   read_task_->set_next(crypt_task_);

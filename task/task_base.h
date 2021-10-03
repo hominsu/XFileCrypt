@@ -31,7 +31,7 @@ class TaskBase : public XTask<int> {
    * @brief 设置内存池
    * @param _memory_resource 内存池
    */
-  void set_memory_resource(std::shared_ptr<std::pmr::memory_resource> _memory_resource);
+  void set_memory_resource(std::shared_ptr<std::pmr::synchronized_pool_resource> &_memory_resource);
 
   /**
    * @brief 设置责任链的下一个节点

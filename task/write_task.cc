@@ -14,14 +14,10 @@
  * @return 初始化状态
  */
 bool WriteTask::Init(const std::string &_file_name) {
-  ofs_.open(_file_name, std::ios::binary);
-  if (!ofs_) {
-    std::cerr << "open file: " << _file_name << " failed" << std::endl;
+  if (_file_name.empty()) {
     return false;
   }
-#ifdef Debug
-  std::cout << "open file: " << _file_name << " success" << std::endl;
-#endif
+  file_name_ = _file_name;
   return true;
 }
 
@@ -32,6 +28,12 @@ void WriteTask::Main() {
 #ifdef Debug
   std::cout << "XCryptTask::Main() Start" << std::endl;
 #endif
+
+  if (!OpenFile()) {
+    set_return(1);
+    return;
+  }
+
   while (is_running) {
     auto data = PopFront(); // 弹出一个数据块指针
     if (nullptr == data) {
@@ -53,4 +55,20 @@ void WriteTask::Main() {
 #endif
 
   set_return(0);
+}
+
+/**
+ * @brief 打开文件
+ * @return 是否打开
+ */
+bool WriteTask::OpenFile() {
+  ofs_.open(file_name_, std::ios::binary);
+  if (!ofs_) {
+    std::cerr << "open file: " << file_name_ << " failed" << std::endl;
+    return false;
+  }
+#ifdef Debug
+  std::cout << "open file: " << file_name_ << " success" << std::endl;
+#endif
+  return true;
 }
