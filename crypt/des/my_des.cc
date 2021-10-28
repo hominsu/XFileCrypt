@@ -147,3 +147,57 @@ void MyDes::GenSubKey() {
     sub_key_.push_back(key_48);
   }
 }
+
+/**
+ * @brief 加密
+ * @param _text 明文, 64 位 bitset
+ * @return 密文, 64 位 bitset
+ */
+std::bitset<64> MyDes::Encrypt(const std::bitset<64> &_text, bool _is_encrypt = DES_ENCRYPT) {
+  auto text = std::bitset<64>(0x0);
+  auto result = std::bitset<64>(0x0);
+  auto left = std::bitset<32>(0x0);
+  auto right = std::bitset<32>(0x0);
+
+  // 初始 IP 置换
+  for (unsigned char index = 0; index < 64; ++index) {
+    text[index] = _text[DesDefine::kIP[index] - 1];
+  }
+
+  // 分为左半部分和右半部分
+  for (unsigned char index = 0; index < 32; ++index) {
+    left[index] = text[index];
+    right[index] = text[index + 32];
+  }
+
+  // 16 次轮函数
+  if (_is_encrypt) {
+    // 加密
+    for (unsigned char index = 0; index < 16; ++index) {
+      auto tmp = right;
+      right = left ^ RoundFunc(right, sub_key_[index]);
+      left = tmp;
+    }
+  } else {
+    // 解密, 密钥逆用
+    for (unsigned char index = 0; index < 16; ++index) {
+      auto tmp = right;
+      right = left ^ RoundFunc(right, sub_key_[15 - index]);
+      left = tmp;
+    }
+  }
+
+  // 合并左半部分和右半部分
+  for (unsigned char index = 0; index < 32; ++index) {
+    text[index] = left[index];
+    text[index + 32] = right[index];
+  }
+
+  // IP 逆置换
+  for (unsigned char index = 0; index < 64; ++index) {
+    result[index] = text[DesDefine::kIP_1[index] - 1];
+  }
+
+  return result;
+}
+

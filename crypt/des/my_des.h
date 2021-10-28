@@ -10,6 +10,9 @@
 
 #include "defs.h"
 
+#define DES_ENCRYPT true
+#define DES_DECRYPT false
+
 class MyDes {
  private:
   std::bitset<64> key_{}; ///< 存储密钥
@@ -30,6 +33,14 @@ class MyDes {
    * @return std::shared_ptr<std::bitset<8>>
    */
   static std::bitset<64> Bytes2Bit(const unsigned char *c);
+
+   /**
+    * @brief 加解密
+    * @param _text 明文或密文, 64 位 bitset
+    * @param _is_encrypt 加密还是解密
+    * @return 密文或明文
+    */
+  std::bitset<64> Encrypt(const std::bitset<64> &_text, bool _is_encrypt);
 
  private:
   /**
