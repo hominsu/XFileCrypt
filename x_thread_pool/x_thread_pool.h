@@ -51,9 +51,8 @@ class XThreadPool {
  public:
   /**
    * @brief 初始化所有线程，并启动线程
-   * @param _thread_nums 线程数量
    */
-  void Init(size_t _thread_nums = std::thread::hardware_concurrency());
+  size_t Init();
 
   /**
    * @brief 线程池退出

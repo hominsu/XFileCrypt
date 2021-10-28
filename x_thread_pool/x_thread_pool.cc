@@ -20,9 +20,24 @@ XThreadPool::~XThreadPool() {
  * @brief 初始化所有线程，并启动线程
  * @param _thread_nums 线程数量
  */
-void XThreadPool::Init(size_t _thread_nums) {
+size_t XThreadPool::Init() {
   std::unique_lock<std::shared_mutex> lock(mutex_);
-  thread_nums_ = _thread_nums;
+
+  auto hardware_thread_num = std::thread::hardware_concurrency();
+
+  if (hardware_thread_num < 4) {
+    thread_nums_ = 3;
+  } else {
+    switch (hardware_thread_num % 3) {
+      case 0:thread_nums_ = hardware_thread_num;
+        break;
+      case 1:thread_nums_ = hardware_thread_num - 1;
+        break;
+      case 2:thread_nums_ = hardware_thread_num + 1;
+        break;
+      default:exit(EXIT_FAILURE);
+    }
+  }
 
   // 处理异常
   if (thread_nums_ <= 0) {
@@ -51,6 +66,8 @@ void XThreadPool::Init(size_t _thread_nums) {
 
   // 设置线程池运行状态
   is_running_ = true;
+
+  return thread_nums_;
 }
 
 /**

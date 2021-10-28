@@ -1,0 +1,18 @@
+version: '3.4'
+
+services:
+  machineplat:
+    # 阿里云仓库: registry.cn-shenzhen.aliyuncs.com/hominsu/x-file-crypt
+    # DockerHub: hominsu/x-file-crypt
+    image: hominsu/x-file-crypt
+    container_name: x-file-crypt
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    restart: always
+    environment:
+      # 设置时区
+      TZ: "Asia/Shanghai" # 时区
+    volumes:
+      - "./test/src:/src"
+      - "./test/enc:/enc"
