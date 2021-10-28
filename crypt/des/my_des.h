@@ -13,6 +13,9 @@
 #define DES_ENCRYPT true
 #define DES_DECRYPT false
 
+/**
+ * @brief DES 加密算法
+ */
 class MyDes {
  private:
   std::bitset<64> key_{}; ///< 存储密钥
@@ -28,19 +31,27 @@ class MyDes {
   bool Init(const std::string &_password);
 
   /**
-   * @brief 将一个字节转换为一个 8 位 bitset
-   * @param c 无符号字符
-   * @return std::shared_ptr<std::bitset<8>>
+   * @brief 加密, 单次加密 8 个字节
+   * @param _in 输入数据
+   * @param _out 输出数据
    */
-  static std::bitset<64> Bytes2Bit(const unsigned char *c);
+  void Encrypt(const void *_in, void *_out);
 
-   /**
+  /**
+   * @brief 解密, 单次解密 8 个字节
+   * @param _in 输入数据
+   * @param _out 输出数据
+   */
+  void Decrypt(const void *_in, void *_out);
+
+ protected:
+  /**
     * @brief 加解密
     * @param _text 明文或密文, 64 位 bitset
     * @param _is_encrypt 加密还是解密
     * @return 密文或明文
     */
-  std::bitset<64> Encrypt(const std::bitset<64> &_text, bool _is_encrypt);
+  std::bitset<64> Crypt(const std::bitset<64> &_text, bool _is_encrypt);
 
  private:
   /**
@@ -66,15 +77,11 @@ class MyDes {
 
  private:
   /**
-   * @brief 强制转换为无符号字符型
-   * @tparam Tn 类型
-   * @param _n 数据 0 ～ 255
-   * @return 强制转换后的结果
+   * @brief 将一个字节转换为一个 8 位 bitset
+   * @param c 无符号字符
+   * @return std::shared_ptr<std::bitset<8>>
    */
-  template<typename Tn>
-  inline unsigned char ToUnsignedChar(Tn &&_n) {
-    return static_cast<unsigned char>(std::forward<Tn>(_n));
-  }
+  static std::bitset<64> Bytes2Bits(const unsigned char *c);
 
   /**
    * @brief 2 位 2 进制转 10 进制

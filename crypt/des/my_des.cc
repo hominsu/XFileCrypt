@@ -19,7 +19,7 @@ bool MyDes::Init(const std::string &_password) {
   unsigned char key[8]{0};
   memcpy(key, _password.c_str(), _password.size()); // 密码拷贝到 char 数组中，少的为 0
 
-  key_ = Bytes2Bit(key);
+  key_ = Bytes2Bits(key);
 
   return false;
 }
@@ -29,7 +29,7 @@ bool MyDes::Init(const std::string &_password) {
  * @param c 无符号字符数组
  * @return std::shared_ptr<std::bitset<8>>
  */
-inline std::bitset<64> MyDes::Bytes2Bit(const unsigned char *c) {
+inline std::bitset<64> MyDes::Bytes2Bits(const unsigned char *c) {
   auto bit_set = std::bitset<64>(0x0);
   for (int i = 0; i < 8; ++i) {
     for (int index = 0, offset = 7; index < 8; ++index, --offset) {
@@ -153,7 +153,7 @@ void MyDes::GenSubKey() {
  * @param _text 明文, 64 位 bitset
  * @return 密文, 64 位 bitset
  */
-std::bitset<64> MyDes::Encrypt(const std::bitset<64> &_text, bool _is_encrypt = DES_ENCRYPT) {
+std::bitset<64> MyDes::Crypt(const std::bitset<64> &_text, bool _is_encrypt = DES_ENCRYPT) {
   auto text = std::bitset<64>(0x0);
   auto result = std::bitset<64>(0x0);
   auto left = std::bitset<32>(0x0);
@@ -199,5 +199,35 @@ std::bitset<64> MyDes::Encrypt(const std::bitset<64> &_text, bool _is_encrypt = 
   }
 
   return result;
+}
+
+/**
+ * @brief 加密, 单次加密 8 个字节
+ * @param _in 输入数据
+ * @param _out 输出数据
+ */
+void MyDes::Encrypt(const void *_in, void *_out) {
+  unsigned char src[8]{0};
+  memcpy(static_cast<void *>(src), _in, 8);
+
+  auto plain_text = Bytes2Bits(src);
+  auto result = Crypt(plain_text, DES_ENCRYPT);
+
+  memcpy(static_cast<void *>(&result), _out, 8);
+}
+
+/**
+ * @brief 解密, 单次解密 8 个字节
+ * @param _in 输入数据
+ * @param _out 输出数据
+ */
+void MyDes::Decrypt(const void *_in, void *_out) {
+  unsigned char src[8]{0};
+  memcpy(static_cast<void *>(src), _in, 8);
+
+  auto plain_text = Bytes2Bits(src);
+  auto result = Crypt(plain_text, DES_DECRYPT);
+
+  memcpy(static_cast<void *>(&result), _out, 8);
 }
 
