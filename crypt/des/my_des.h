@@ -36,33 +36,56 @@ class MyDes {
    * @param _k 48 位子密钥
    * @return 加密后的 32 位数据
    */
-  std::bitset<32> RoundFunc(std::bitset<32> _r, std::bitset<48> _k);
+  std::bitset<32> RoundFunc(const std::bitset<32> &_r, const std::bitset<48> &_k);
+
+  /**
+   * @brief 将一个 28 位的子密钥左移
+   * @param _k 子密钥
+   * @param _shift_num 左移位数
+   * @return 左移后的密钥
+   */
+  static std::bitset<28> KeyLeftShift(const std::bitset<28> &_k, unsigned char &_shift_num);
 
  private:
   /**
-   * @brief 4 位 2 进制转 10 进制
+   * @brief 强制转换为无符号字符型
+   * @tparam Tn 类型
+   * @param _n 数据 0 ～ 255
+   * @return 强制转换后的结果
+   */
+  template<typename Tn>
+  inline unsigned char ToUnsignedChar(Tn &&_n) {
+    return static_cast<unsigned char>(std::forward<Tn>(_n));
+  }
+
+  /**
+   * @brief 2 位 2 进制转 10 进制
+   * @tparam Te 经过 e 表扩展的数据
    * @tparam Tb bitset 对象指针
+   * @param _e 经过 e 表扩展的数据
+   * @param _b 第二位
+  * @param _a 第一位
+  * @return 十进制
+   */
+  template<typename Te, typename Tb>
+  inline unsigned char ExpendBin2Dec(Te &&_e, Tb &&_b, Tb &&_a) {
+    return _e[_b] * 2 + _e[_a] * 1;
+  };
+
+  /**
+   * @brief 4 位 2 进制转 10 进制
+   * @tparam Te 经过 e 表扩展的数据
+   * @tparam Tb bitset 对象指针
+   * @param _e 经过 e 表扩展的数据
    * @param _d 第四位
    * @param _c 第三位
    * @param _b 第二位
    * @param _a 第一位
    * @return 十进制
    */
-  template<typename Tb>
-  inline unsigned char Bin4ToDec(Tb &&_d, Tb &&_c, Tb &&_b, Tb &&_a) {
-    return _d * 8 + _c * 4 + _b * 2 + _a * 1;
-  };
-
-  /**
-   * @brief 2 位 2 进制转 10 进制
-   * @tparam Tb bitset 对象指针
-   * @param _b 第二位
-   * @param _a 第一位
-   * @return 十进制
-   */
-  template<typename Tb>
-  inline unsigned char Bin2ToDec(Tb &&_b, Tb &&_a) {
-    return _b * 2 + _a * 1;
+  template<typename Te, typename Tb>
+  inline unsigned char ExpendBin2Dec(Te &&_e, Tb &&_d, Tb &&_c, Tb &&_b, Tb &&_a) {
+    return _e[_d] * 8 + _e[_c] * 4 + _e[_b] * 2 + _e[_a] * 1;
   };
 };
 

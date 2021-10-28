@@ -52,6 +52,7 @@ file(GLOB ProjectSRC
         "task/write/*.cc"
         "task/read/*.cc"
         "memory/*.cc"
+        "crypt/des/*.cc"
         "crypt/*.cc"
         "task/*.cc"
         "*.cc")
@@ -67,4 +68,4 @@ elseif (CMAKE_BUILD_TYPE STREQUAL Release)
 endif ()
 
 add_executable(${PROJECT_NAME} ${ProjectSRC})
-target_link_libraries(${PROJECT_NAME} OpenSSL::Crypto Threads::Threads -static)
+target_link_libraries(${PROJECT_NAME} OpenSSL::Crypto Threads::Threads)

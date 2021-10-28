@@ -16,10 +16,10 @@
  * @return bool
  */
 bool MyDes::Init(const std::string &_password) {
-  auto key = std::make_shared<unsigned char[8]>(0);
-  memcpy(key.get(), _password.c_str(), _password.size()); // 密码拷贝到 char 数组中，少的为 0
+  unsigned char key[8]{0};
+  memcpy(key, _password.c_str(), _password.size()); // 密码拷贝到 char 数组中，少的为 0
 
-  key_ = Bytes2Bit(key.get());
+  key_ = Bytes2Bit(key);
 
   return false;
 }
@@ -45,7 +45,7 @@ inline std::bitset<64> MyDes::Bytes2Bit(const unsigned char *c) {
  * @param _k 48 位子密钥
  * @return 加密后的 32 位数据
  */
-std::bitset<32> MyDes::RoundFunc(std::bitset<32> _r, std::bitset<48> _k) {
+std::bitset<32> MyDes::RoundFunc(const std::bitset<32> &_r, const std::bitset<48> &_k) {
   // 存储经过 e 表扩展的数据
   auto expend_e = std::bitset<48>(0x0);
 
@@ -62,12 +62,13 @@ std::bitset<32> MyDes::RoundFunc(std::bitset<32> _r, std::bitset<48> _k) {
 
   // S Box
   for (unsigned char index = 0, loc = 0; index < 48; index += 6, loc += 4) {
+    // 将经过 e 表扩展的数据通过 S Box 进行压缩置换
     auto result = std::bitset<4>(
-        DesDefine::kSBox[index / 6][Bin2ToDec(index + 0, index + 1)][Bin4ToDec(
-            index + 2,
-            index + 3,
-            index + 4,
-            index + 5)]);
+        DesDefine::kSBox[index / 6][ExpendBin2Dec(expend_e, index + 0, index + 1)][ExpendBin2Dec(expend_e,
+                                                                                                 index + 2,
+                                                                                                 index + 3,
+                                                                                                 index + 4,
+                                                                                                 index + 5)]);
 
     tmp[loc] = result[0];
     tmp[loc + 1] = result[0];
@@ -84,4 +85,24 @@ std::bitset<32> MyDes::RoundFunc(std::bitset<32> _r, std::bitset<48> _k) {
   }
 
   return output;
+}
+
+/**
+ * @brief 将一个 28 位的子密钥左移
+ * @param _k 子密钥
+ * @param _shift_num 左移位数
+ * @return 左移后的密钥
+ */
+inline std::bitset<28> MyDes::KeyLeftShift(const std::bitset<28> &_k, unsigned char &_shift_num) {
+  auto tmp = std::bitset<28>(_k);
+
+  for (unsigned char index = 0; index < 28 - _shift_num; ++index) {
+    tmp[index + _shift_num] = _k[index];
+  }
+
+  for (unsigned char index = 0; index < _shift_num; ++index) {
+    tmp[index] = _k[28 - index];
+  }
+
+  return tmp;
 }
