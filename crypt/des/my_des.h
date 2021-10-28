@@ -5,6 +5,7 @@
 #ifndef XFILECRYPT_CRYPT_MY_DES_H_
 #define XFILECRYPT_CRYPT_MY_DES_H_
 
+#include <vector>
 #include <bitset>
 
 #include "defs.h"
@@ -12,6 +13,7 @@
 class MyDes {
  private:
   std::bitset<64> key_{}; ///< 存储密钥
+  std::vector<std::bitset<48>> sub_key_;  ///< 16 轮的子密钥
 
  public:
   /**
@@ -44,7 +46,12 @@ class MyDes {
    * @param _shift_num 左移位数
    * @return 左移后的密钥
    */
-  static std::bitset<28> KeyLeftShift(const std::bitset<28> &_k, unsigned char &_shift_num);
+  static std::bitset<28> KeyLeftShift(const std::bitset<28> &_k, const unsigned char &_shift_num);
+
+  /**
+   * @brief 生成 16 个 48 位的子密钥
+   */
+  void GenSubKey();
 
  private:
   /**

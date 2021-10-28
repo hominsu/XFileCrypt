@@ -93,7 +93,7 @@ std::bitset<32> MyDes::RoundFunc(const std::bitset<32> &_r, const std::bitset<48
  * @param _shift_num 左移位数
  * @return 左移后的密钥
  */
-inline std::bitset<28> MyDes::KeyLeftShift(const std::bitset<28> &_k, unsigned char &_shift_num) {
+inline std::bitset<28> MyDes::KeyLeftShift(const std::bitset<28> &_k, const unsigned char &_shift_num) {
   auto tmp = std::bitset<28>(_k);
 
   for (unsigned char index = 0; index < 28 - _shift_num; ++index) {
@@ -105,4 +105,45 @@ inline std::bitset<28> MyDes::KeyLeftShift(const std::bitset<28> &_k, unsigned c
   }
 
   return tmp;
+}
+
+/**
+ * @brief 生成 16 个 48 位的子密钥
+ */
+void MyDes::GenSubKey() {
+  auto key_56 = std::bitset<56>(0x0);
+  auto left_key = std::bitset<28>(0x0);
+  auto right_key = std::bitset<28>(0x0);
+  auto key_48 = std::bitset<48>(0x0);
+
+  // 压缩置换 1, 64 位压缩到 56 位
+  for (unsigned char index = 0; index < 56; ++index) {
+    key_56[index] = key_[DesDefine::kPC_1[index] - 1];
+  }
+
+  // 56 位密钥分为左右两边两个 28 位的密钥
+  for (unsigned char index = 0; index < 28; ++index) {
+    left_key[index] = key_56[index];
+    right_key[index] = key_56[index + 28];
+  }
+
+  // 16 轮
+  for (unsigned char kShiftBit: DesDefine::kShiftBits) {
+    // 循环左移
+    left_key = KeyLeftShift(left_key, kShiftBit);
+    right_key = KeyLeftShift(right_key, kShiftBit);
+
+    // 拼接
+    for (unsigned char index = 0; index < 28; ++index) {
+      key_56[index] = left_key[index];
+      key_56[index + 28] = right_key[index];
+    }
+
+    // 压缩置换 2, 56 位压缩到 48 位
+    for (unsigned char index = 0; index < 48; ++index) {
+      key_48[index] = key_56[DesDefine::kPC_2[index - 1]];
+    }
+
+    sub_key_.push_back(key_48);
+  }
 }
