@@ -73,12 +73,12 @@ bool FileCrypt::Start(const std::string &_in_file,
  */
 void FileCrypt::Wait() {
   if (nullptr != read_task_) {
-    read_task_->get_return();
+    read_bytes_ = read_task_->get_return();
   }
   if (nullptr != crypt_task_) {
-    crypt_task_->get_return();
+    crypt_bytes_ = crypt_task_->get_return();
   }
   if (nullptr != write_task_) {
-    write_task_->get_return();
+    write_bytes_ = write_task_->get_return();
   }
 }

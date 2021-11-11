@@ -20,6 +20,9 @@ class FileCrypt {
  public:
   std::string in_file_;
   std::string out_file_;
+  size_t read_bytes_;
+  size_t crypt_bytes_;
+  size_t write_bytes_;
 
  private:
   std::shared_ptr<ReadTask> read_task_;    ///< 读取任务

@@ -38,7 +38,7 @@ std::bitset<28> KeyLeftShift(const std::bitset<28> &_k, const unsigned char &_sh
 template<typename Te, typename ... Args>
 inline unsigned char ExpendBin2Dec(Te &&_e, Args ... args) {
   unsigned char BCD_8421 = 0;
-  return (... + (_e[args] * (BCD_8421 > 1 ? BCD_8421 *= 2 : ++BCD_8421)));
+  return (0 + ... + (_e[args] * (BCD_8421 > 1 ? BCD_8421 *= 2 : ++BCD_8421)));
 }
 
 /**

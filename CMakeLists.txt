@@ -67,5 +67,13 @@ elseif (CMAKE_BUILD_TYPE STREQUAL Release)
     message("")
 endif ()
 
+option(BUILD_TEST "Whether or not to build the test" ON)
+if (${BUILD_TEST})
+    message(STATUS "Building tests")
+    enable_testing()
+    add_subdirectory(ctest/crypt_test)
+    add_subdirectory(ctest/file_test)
+endif ()
+
 add_executable(${PROJECT_NAME} ${ProjectSRC})
 target_link_libraries(${PROJECT_NAME} OpenSSL::Crypto Threads::Threads)

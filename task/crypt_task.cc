@@ -22,8 +22,10 @@ void CryptTask::Init(const std::string &_password) {
  */
 void CryptTask::Main() {
 #ifdef Debug
-  std::cout << "XCryptTask::Main() Start" << std::endl;
+  std::cout << "CryptTask::Main() Start" << std::endl;
 #endif
+  size_t crypt_bytes = 0;
+
   while (is_running) {
     auto data = PopFront();
     if (nullptr == data) {
@@ -31,7 +33,7 @@ void CryptTask::Main() {
       continue;
     }
     auto out = Data::Make(memory_resource_);
-    size_t out_size = data->size() + crypt_->GetMaxPaddingSize(data->size());
+    size_t out_size = data->size() + DesCrypt::GetMaxPaddingSize(data->size());
     out->New(out_size);
 
     size_t crypt_data_size;
@@ -49,6 +51,7 @@ void CryptTask::Main() {
                           data->end());
     }
 
+    crypt_bytes += crypt_data_size;
     out->set_size(crypt_data_size);
     out->set_end(data->end());  // 设置状态
 
@@ -70,7 +73,7 @@ void CryptTask::Main() {
   std::cout << std::endl << "XCryptTask::Main() End" << std::endl;;
 #endif
 
-  set_return(0);
+  set_return(crypt_bytes);
 }
 
 /**

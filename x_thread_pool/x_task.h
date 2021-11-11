@@ -40,6 +40,10 @@ class XTask : public XTaskBase {
     p_.set_value(std::forward<ret_type>(_value));
   }
 
+  void set_return(const ret_type &_value) {
+    p_.set_value(_value);
+  }
+
   /**
    * @brief 阻塞等待 set_value
    * @return decltype(auto)

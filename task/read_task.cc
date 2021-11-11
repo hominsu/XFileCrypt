@@ -26,11 +26,11 @@ bool ReadTask::Init(const std::string &_file_name) {
  */
 void ReadTask::Main() {
 #ifdef Debug
-  std::cout << "XReadTask::Main() Start" << std::endl;
+  std::cout << "ReadTask::Main() Start" << std::endl;
 #endif
 
   if (!OpenFile()) {
-    set_return(1);
+    set_return(0);
     return;
   }
 
@@ -67,10 +67,10 @@ void ReadTask::Main() {
   }
   ifs_.close();
 #ifdef Debug
-  std::cout << std::endl << "XReadTask::Main() End" << std::endl;
+  std::cout << std::endl << "ReadTask::Main() End" << std::endl;
 #endif
 
-  set_return(0);
+  set_return(data_bytes_);
 }
 
 /**

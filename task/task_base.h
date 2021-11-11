@@ -17,7 +17,7 @@ class Data;
 /**
  * @brief 任务基类
  */
-class TaskBase : public XTask<int> {
+class TaskBase : public XTask<size_t> {
  protected:
   size_t data_bytes_{}; ///< 处理的数据的字节数
   std::shared_ptr<std::pmr::memory_resource> memory_resource_;  ///< 内存池

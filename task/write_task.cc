@@ -29,8 +29,10 @@ void WriteTask::Main() {
   std::cout << "XCryptTask::Main() Start" << std::endl;
 #endif
 
+  size_t write_bytes = 0;
+
   if (!OpenFile()) {
-    set_return(1);
+    set_return(0);
     return;
   }
 
@@ -43,6 +45,7 @@ void WriteTask::Main() {
 
     // 数据块写入到文件中
     ofs_.write(static_cast<char *>(data->data()), static_cast<long>(data->size()));
+    write_bytes += data->size();
     if (data->end()) {
       break;
     }
@@ -51,10 +54,10 @@ void WriteTask::Main() {
   ofs_.close();
 
 #ifdef Debug
-  std::cout << "XCryptTask::Main() End" << std::endl;
+  std::cout << "WriteTask::Main() End" << std::endl;
 #endif
 
-  set_return(0);
+  set_return(write_bytes);
 }
 
 /**
