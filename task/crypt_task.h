@@ -7,14 +7,14 @@
 
 #include "task_base.h"
 
-class DesCrypt;
+class AesCrypt;
 
 /**
  * @brief 加解密任务
  */
 class CryptTask : public TaskBase {
  private:
-  std::shared_ptr<DesCrypt> crypt_; ///< 加解密对象指针
+  std::shared_ptr<AesCrypt> crypt_; ///< 加解密对象指针
   bool is_encrypt_ = true;  ///< 加密解密标识
 
  public:

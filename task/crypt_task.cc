@@ -2,19 +2,20 @@
 // Created by Homin Su on 2021/10/2.
 //
 
+#include "crypt_task.h"
+
 #include <iostream>
 
-#include "crypt_task.h"
 #include "../memory/data.h"
-#include "../crypt/des_crypt.h"
+#include "../crypt/aes_crypt.h"
 
 /**
  * @brief 初始化加密任务
  * @param _password 密码
  */
 void CryptTask::Init(const std::string &_password) {
-  crypt_ = std::make_shared<DesCrypt>();
-  crypt_->Init(_password);
+  crypt_ = std::make_shared<AesCrypt>();
+  crypt_->Init(_password, is_encrypt_);
 }
 
 /**
@@ -33,7 +34,7 @@ void CryptTask::Main() {
       continue;
     }
     auto out = Data::Make(memory_resource_);
-    size_t out_size = data->size() + DesCrypt::GetMaxPaddingSize(data->size());
+    size_t out_size = data->size() + AesCrypt::GetMaxPaddingSize(data->size());
     out->New(out_size);
 
     size_t crypt_data_size;

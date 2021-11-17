@@ -29,6 +29,9 @@ void ReadTask::Main() {
   std::cout << "ReadTask::Main() Start" << std::endl;
 #endif
 
+  size_t read_bytes;
+  size_t total_read_bytes = 0;
+
   if (!OpenFile()) {
     set_return(0);
     return;
@@ -48,13 +51,16 @@ void ReadTask::Main() {
 
     // 读取文件
     ifs_.read(static_cast<char *>(buf), data_size);
-    if (ifs_.gcount() <= 0) {
+    read_bytes = ifs_.gcount();
+
+    if (read_bytes <= 0) {
       break;
     }
 
-    data->set_size(ifs_.gcount());
+    data->set_size(read_bytes);
+    total_read_bytes += read_bytes;
 
-    if (ifs_.eof()) {
+    if (total_read_bytes == data_bytes_) {
       data->set_end(true);
     }
 #ifdef Debug

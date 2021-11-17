@@ -1,6 +1,8 @@
 //
-// Created by Homin Su on 2021/10/2.
+// Created by Homin Su on 2021/11/17.
 //
+
+#include "aes_crypt.h"
 
 #ifdef Debug
 #include <iostream>
@@ -9,24 +11,31 @@
 #endif
 #include <cstring>
 
-#include "des_crypt.h"
-
 /**
  * @brief 初始化密钥
  * @details DES 加密算法，密钥 8 位，多余丢弃，不足补 0
  * @param _password 8 位密钥
  * @return bool
  */
-bool DesCrypt::Init(const std::string &_password) {
-  const_DES_cblock key = {0}; // 少地补零
+bool AesCrypt::Init(const std::string &_password, bool _is_encrypt) {
+  int key_size = 0;
 
-  size_t key_size = _password.size();
-  if (key_size > sizeof(key)) {
-    key_size = sizeof(key); // 多出的丢弃
+  if (_password.length() <= 16) {
+    key_size = 16;
+  } else if (_password.length() <= 24) {
+    key_size = 24;
+  } else if (_password.length() <= 32) {
+    key_size = 32;
   }
 
+  unsigned char key[32]{0};
   memcpy(key, _password.c_str(), key_size);
-  DES_set_key(&key, &key_schedule_);  // 设置密钥
+
+  if (_is_encrypt) {
+    AES_set_encrypt_key(static_cast<const unsigned char*>(key), key_size * 8, &key_schedule_);  // 设置密钥
+  } else {
+    AES_set_decrypt_key(static_cast<const unsigned char*>(key), key_size * 8, &key_schedule_);  // 设置密钥
+  }
 
   return true;
 }
@@ -40,16 +49,16 @@ bool DesCrypt::Init(const std::string &_password) {
  * @param _is_end 是否加密到结尾
  * @return 返回加密后的数据，有可能大于输入（结尾处）
  */
-size_t DesCrypt::Encrypt(const char *_in_data, size_t _in_size, char *_out_data, bool _is_end) {
+size_t AesCrypt::Encrypt(const char *_in_data, size_t _in_size, char *_out_data, bool _is_end) {
   if (nullptr == _in_data || nullptr == _out_data || _in_size <= 0) {
     return 0;
   }
   size_t write_size = 0;  // 加密后的字节数
 
-  const_DES_cblock in = {0};  // 输入
-  DES_cblock out = {0}; // 输出
+  unsigned char in[AES_BLOCK_SIZE] = {0};  // 输入
+  unsigned char out[AES_BLOCK_SIZE] = {0}; // 输出
 
-  const size_t block_size = sizeof(const_DES_cblock); // 加密数据块大小
+  const size_t block_size = AES_BLOCK_SIZE; // 加密数据块大小
   int padding_num = static_cast<int>(block_size - _in_size % block_size); // 填充数量，同时也是填充的内容，如果是 8 就填充 8
   int padding_offset = static_cast<int>(_in_size % block_size); // 填充位置
 
@@ -57,7 +66,7 @@ size_t DesCrypt::Encrypt(const char *_in_data, size_t _in_size, char *_out_data,
 
   for (size_t i = 0; i < _in_size; i += block_size) {
 
-    // 处理结尾处字节数小于 8 的情况
+    // 处理结尾处字节数小于 16 的情况
     if (_in_size - i < block_size) {
       data_size = _in_size - i;
     } else {
@@ -73,11 +82,11 @@ size_t DesCrypt::Encrypt(const char *_in_data, size_t _in_size, char *_out_data,
       // ????????88888888
       if (padding_num == block_size) {
         // 加密原来的数据
-        DES_ecb_encrypt(&in, &out, &key_schedule_, DES_ENCRYPT);
+        AES_ecb_encrypt(static_cast<const unsigned char*>(in), out, &key_schedule_, AES_ENCRYPT);
         memcpy(_out_data + write_size, &out, block_size);
         write_size += block_size;
 
-        memset(in, padding_num, sizeof(in));  // 填充 8
+        memset(in, padding_num, sizeof(in));  // 填充 16
       } else {  // ??22    ?????55555
         memset(in + padding_offset, padding_num, padding_num);
 #ifdef Debug
@@ -87,7 +96,7 @@ size_t DesCrypt::Encrypt(const char *_in_data, size_t _in_size, char *_out_data,
     }
 
     // 加密
-    DES_ecb_encrypt(&in, &out, &key_schedule_, DES_ENCRYPT);
+    AES_ecb_encrypt(static_cast<const unsigned char*>(in), out, &key_schedule_, AES_ENCRYPT);
 
     // 加密好的数据拷贝到 _out_data 中
     memcpy(_out_data + write_size, &out, block_size);
@@ -106,15 +115,16 @@ size_t DesCrypt::Encrypt(const char *_in_data, size_t _in_size, char *_out_data,
  * @param _is_end 是否加密到结尾
  * @return 返回解密后的数据，有可能小雨输入（结尾处）
  */
-size_t DesCrypt::Decrypt(const char *_in_data, size_t _in_size, char *_out_data, bool _is_end) {
+size_t AesCrypt::Decrypt(const char *_in_data, size_t _in_size, char *_out_data, bool _is_end) {
   if (nullptr == _out_data || nullptr == _in_data || _in_size <= 0) {
     return 0;
   }
   size_t write_size = 0;  // 加密后的字节数
 
-  const_DES_cblock in{0};  // 输入
-  DES_cblock out{0}; // 输出
-  const size_t block_size = sizeof(const_DES_cblock);  // 加密数据块大小
+  unsigned char in[AES_BLOCK_SIZE] = {0};  // 输入
+  unsigned char out[AES_BLOCK_SIZE] = {0}; // 输出
+
+  const size_t block_size = AES_BLOCK_SIZE;  // 加密数据块大小
   size_t data_size; // 每次加密的数据大小
 
   for (size_t i = 0; i < _in_size; i += block_size) {
@@ -122,14 +132,14 @@ size_t DesCrypt::Decrypt(const char *_in_data, size_t _in_size, char *_out_data,
     memcpy(in, _in_data + write_size, block_size);
 
     // 解密
-    DES_ecb_encrypt(&in, &out, &key_schedule_, DES_DECRYPT);
+    AES_ecb_encrypt(static_cast<const unsigned char*>(in), out, &key_schedule_, AES_DECRYPT);
     data_size = block_size;
 
     // 处理结尾填充: ??22    ?????55555
     if (_is_end && _in_size - i <= block_size) {
-      data_size = block_size - out[7];
+      data_size = block_size - out[15];
 
-      // ????????88888888
+      // ????????????????16161616161616161616161616161616
       if (0 == data_size) { break; }
       else if (data_size < 0) {
 #ifdef Debug
@@ -152,11 +162,11 @@ size_t DesCrypt::Decrypt(const char *_in_data, size_t _in_size, char *_out_data,
  * @param _data_size
  * @return 需要填充的字节数
  */
-size_t DesCrypt::GetMaxPaddingSize(size_t _data_size) {
-  const size_t block_size = sizeof(const_DES_cblock); // 加密数据块大小
-  size_t padding_num = block_size - _data_size % block_size;  // 填充数量，同时也是填充的内容，如果是 8 就填充 8
+size_t AesCrypt::GetMaxPaddingSize(size_t _data_size) {
+  const size_t block_size = AES_BLOCK_SIZE; // 加密数据块大小
+  size_t padding_num = block_size - _data_size % block_size;  // 填充数量，同时也是填充的内容，如果是 16 就填充 16
   if (0 == padding_num) {
-    padding_num = sizeof(const_DES_cblock);
+    padding_num = block_size;
   }
   return padding_num;
 }
