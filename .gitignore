@@ -9,5 +9,13 @@ CMakeFiles/
 test/
 !test/*.cc
 
+out/
+x64/
+
+**/*.sln
+**/*.vcxproj
+**/*.vcxproj.user
+**/*.vcxproj.filters
+
 build/
 !build/gen.sh

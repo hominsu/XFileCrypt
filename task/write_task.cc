@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <thread>
 #include <string>
 
 #include "write_task.h"
@@ -26,7 +27,7 @@ bool WriteTask::Init(const std::string &_file_name) {
  */
 void WriteTask::Main() {
 #ifdef Debug
-  std::cout << "XCryptTask::Main() Start" << std::endl;
+  std::cout << "XCryptTask::Main() Start, thread id: " << std::this_thread::get_id() << std::endl;
 #endif
 
   size_t write_bytes = 0;
@@ -54,7 +55,7 @@ void WriteTask::Main() {
   ofs_.close();
 
 #ifdef Debug
-  std::cout << "WriteTask::Main() End" << std::endl;
+  std::cout << "WriteTask::Main() End, thread id: " << std::this_thread::get_id() << std::endl;
 #endif
 
   set_return(write_bytes);

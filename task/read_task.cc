@@ -26,7 +26,7 @@ bool ReadTask::Init(const std::string &_file_name) {
  */
 void ReadTask::Main() {
 #ifdef Debug
-  std::cout << "ReadTask::Main() Start" << std::endl;
+  std::cout << "ReadTask::Main() Start, thread id: " << std::this_thread::get_id() << std::endl;
 #endif
 
   size_t read_bytes;
@@ -64,7 +64,7 @@ void ReadTask::Main() {
       data->set_end(true);
     }
 #ifdef Debug
-    std::cout << "[" << ifs_.gcount() << "]" << std::flush;
+//    std::cout << "[" << ifs_.gcount() << "]" << std::flush;
 #endif
 
     if (nullptr != next_) {
@@ -73,7 +73,7 @@ void ReadTask::Main() {
   }
   ifs_.close();
 #ifdef Debug
-  std::cout << std::endl << "ReadTask::Main() End" << std::endl;
+  std::cout << std::endl << "ReadTask::Main() End, thread id: " << std::this_thread::get_id() << std::endl;
 #endif
 
   set_return(data_bytes_);

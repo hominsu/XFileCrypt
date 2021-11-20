@@ -1,4 +1,11 @@
 cmake_minimum_required(VERSION 3.19)
+
+# setting vcpkg
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+    set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake
+            CACHE STRING "Vcpkg toolchain file")
+endif ()
+
 project(XFileCrypt)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -22,6 +29,18 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(OPENSSL_INCLUDE_DIR /opt/homebrew/Cellar/openssl@1.1/1.1.1l_1/include)
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
     message("Current platform: Windows")
+    # if msvc
+    message("Current compiler: ${CMAKE_CXX_COMPILER_ID}")
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+        add_compile_options(/wd4819)
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib")
+    # if mingw
+    elseif  ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        # setting vcpkg
+        if (DEFINED ENV{VCPKG_DEFAULT_TRIPLET} AND NOT DEFINED VCPKG_TARGET_TRIPLET)
+            set(VCPKG_TARGET_TRIPLET "$ENV{VCPKG_DEFAULT_TRIPLET}" CACHE STRING "")
+        endif ()
+    endif ()
 else ()
     message(FATAL_ERROR "Platform ${CMAKE_SYSTEM_NAME} is not support for this project")
 endif ()
@@ -76,4 +95,4 @@ if (${BUILD_TEST})
 endif ()
 
 add_executable(${PROJECT_NAME} ${ProjectSRC})
-target_link_libraries(${PROJECT_NAME} OpenSSL::Crypto Threads::Threads)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::Crypto Threads::Threads)

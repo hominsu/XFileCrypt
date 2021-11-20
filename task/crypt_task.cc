@@ -5,6 +5,7 @@
 #include "crypt_task.h"
 
 #include <iostream>
+#include <thread>
 
 #include "../memory/data.h"
 #include "../crypt/aes_crypt.h"
@@ -23,7 +24,7 @@ void CryptTask::Init(const std::string &_password) {
  */
 void CryptTask::Main() {
 #ifdef Debug
-  std::cout << "CryptTask::Main() Start" << std::endl;
+  std::cout << "CryptTask::Main() Start, thread id: " << std::this_thread::get_id() << std::endl;
 #endif
   size_t crypt_bytes = 0;
 
@@ -57,7 +58,7 @@ void CryptTask::Main() {
     out->set_end(data->end());  // 设置状态
 
 #ifdef Debug
-    std::cout << "<" << out->size() << ">" << std::flush;
+//    std::cout << "<" << out->size() << ">" << std::flush;
 #endif
 
     // 如果有下一个责任链，就 push 数据进去
@@ -71,7 +72,7 @@ void CryptTask::Main() {
     }
   }
 #ifdef Debug
-  std::cout << std::endl << "XCryptTask::Main() End" << std::endl;;
+  std::cout << std::endl << "XCryptTask::Main() End, thread id: " << std::this_thread::get_id() << std::endl;
 #endif
 
   set_return(crypt_bytes);

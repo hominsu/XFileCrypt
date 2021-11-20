@@ -31,9 +31,9 @@ size_t XThreadPool::Init() {
     switch (hardware_thread_num % 3) {
       case 0:thread_nums_ = hardware_thread_num;
         break;
-      case 1:thread_nums_ = hardware_thread_num - 1;
+      case 1:thread_nums_ = hardware_thread_num + 2;
         break;
-      case 2:thread_nums_ = hardware_thread_num + 1;
+      case 2:thread_nums_ = hardware_thread_num + 4;
         break;
       default:exit(EXIT_FAILURE);
     }
@@ -96,7 +96,7 @@ void XThreadPool::Stop() {
  * @brief 线程池线程的入口函数
  */
 void XThreadPool::Run() {
-#ifdef DEBUG
+#ifdef Debug
   std::stringstream str_info;
   str_info << "Run: " << std::this_thread::get_id() << std::endl;
   std::cout << str_info.str();
@@ -124,6 +124,9 @@ void XThreadPool::Run() {
       std::cerr << str_e.str();
     }
     --task_run_count_;
+#ifdef Debug
+    std::cout << "run: " << task_run_count_ << std::endl;
+#endif
   }
 }
 

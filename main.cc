@@ -41,7 +41,7 @@ int main(int _argc, char *_argv[]) {
   std::string dst_dir = _argv[3];   // 输入文件夹
   std::string password = _argv[4];  // 密钥
 
-  bool is_encrypt;
+  bool is_encrypt = true;
   if ("-e" == option) {
     is_encrypt = true;
   } else if ("-d" == option) {
@@ -102,8 +102,8 @@ int main(int _argc, char *_argv[]) {
     read_bytes += file_crypt->read_bytes_;
     crypt_bytes += file_crypt->crypt_bytes_;
     write_bytes += file_crypt->write_bytes_;
-    std::cout << ++task_num << ": in: [" << file_crypt->in_file_ << "], out: [" << file_crypt->out_file_ << "]"
-              << std::endl;
+    //std::cout << ++task_num << ": in: [" << file_crypt->in_file_ << "], out: [" << file_crypt->out_file_ << "]"
+    //          << std::endl;
   }
 
   auto usage_times = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -116,7 +116,7 @@ int main(int _argc, char *_argv[]) {
 
   auto megabytes_per_second = static_cast<double>(read_bytes) / (static_cast<double>(usage_times) / 1000);
 
-  printf("\nSpeed: %lf MB/s, %lf mbps/s\n",
+  printf("\nSpeed: %lf MB/s, %lf mbps\n",
          convert(megabytes_per_second, Unit::MB),
          convert(megabytes_per_second, Unit::MB) * 8);
 
