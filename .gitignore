@@ -16,6 +16,8 @@ x64/
 **/*.vcxproj
 **/*.vcxproj.user
 **/*.vcxproj.filters
+**/*.cd
+**/*.png
 
 build/
 !build/gen.sh
