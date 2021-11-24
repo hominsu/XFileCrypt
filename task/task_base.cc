@@ -4,6 +4,8 @@
 
 #include "task_base.h"
 
+#include <utility>
+
 /**
  * @brief 设置内存池
  * @param _memory_resource 内存池
@@ -18,6 +20,24 @@ void TaskBase::set_memory_resource(std::shared_ptr<std::pmr::synchronized_pool_r
  */
 void TaskBase::set_next(std::shared_ptr<TaskBase> _next) {
   next_ = std::move(_next);
+}
+
+/**
+ * @brief 设置责任链的上一个节点
+ * @param _next 责任链的上一个节点
+ */
+void TaskBase::set_prev(std::shared_ptr<TaskBase> _prev) {
+  prev_ = std::move(_prev);
+}
+
+/**
+ * @brief 获取数据块列表长度
+ * @return
+ */
+size_t TaskBase::DataListSize() {
+  // 共享锁
+  std::shared_lock<std::shared_mutex> lock(mutex_);
+  return datas_.size();
 }
 
 /**

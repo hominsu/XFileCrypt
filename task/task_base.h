@@ -9,6 +9,7 @@
 #include <memory>
 #include <memory_resource>
 #include <shared_mutex>
+#include <condition_variable>
 
 #include "../x_thread_pool/x_task.h"
 
@@ -18,14 +19,19 @@ class Data;
  * @brief 任务基类
  */
 class TaskBase : public XTask<size_t> {
+ public:
+  std::condition_variable_any cv_;
+
  protected:
   size_t data_bytes_{}; ///< 处理的数据的字节数
   std::shared_ptr<std::pmr::memory_resource> memory_resource_;  ///< 内存池
-  std::shared_ptr<TaskBase> next_; ///< 责任链
+  std::shared_ptr<TaskBase> next_; ///< 责任链下游
+  std::shared_ptr<TaskBase> prev_; ///< 责任链上游
+
+  mutable std::shared_mutex mutex_;
 
  private:
   std::list<std::shared_ptr<Data>> datas_;  ///< 数据块
-  mutable std::shared_mutex mutex_;
 
  public:
   /**
@@ -39,6 +45,18 @@ class TaskBase : public XTask<size_t> {
    * @param _next 责任链的下一个节点
    */
   void set_next(std::shared_ptr<TaskBase> _next);
+
+  /**
+   * @brief 设置责任链的上一个节点
+   * @param _next 责任链的上一个节点
+   */
+  void set_prev(std::shared_ptr<TaskBase> _prev);
+
+  /**
+   * @brief 获取数据块列表长度
+   * @return
+   */
+  size_t DataListSize();
 
   /**
    * @brief 给对象传递数据，线程安全

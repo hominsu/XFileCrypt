@@ -42,6 +42,12 @@ void ReadTask::Main() {
       break;
     }
 
+    // 当下游节点的数据块总和超过 10MB 时阻塞
+    {
+      std::unique_lock<std::shared_mutex> lock(mutex_);
+      cv_.wait(mutex_, [this]() -> bool { return next_->DataListSize() <= 1024 * 10; });
+    }
+
     // 创建内存池空间管理对象
     auto data = Data::Make(memory_resource_);
     int data_size = 1024;

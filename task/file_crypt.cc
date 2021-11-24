@@ -60,6 +60,10 @@ bool FileCrypt::Start(const std::string &_in_file,
   read_task_->set_next(crypt_task_);
   crypt_task_->set_next(write_task_);
 
+  // 设置责任链: read_task <- crypt_task <- write_task
+  write_task_->set_prev(crypt_task_);
+  crypt_task_->set_prev(read_task_);
+
   // 任务加入线程池
   XThreadPool::Get()->AddTask(read_task_);
   XThreadPool::Get()->AddTask(crypt_task_);

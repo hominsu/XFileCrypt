@@ -29,6 +29,11 @@ void CryptTask::Main() {
   size_t crypt_bytes = 0;
 
   while (is_running) {
+    // 当数据块总和小于 1MB 时通知上游，解除阻塞，继续读文件
+    if (DataListSize() <= 1024) {
+      prev_->cv_.notify_one();
+    }
+
     auto data = PopFront();
     if (nullptr == data) {
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
