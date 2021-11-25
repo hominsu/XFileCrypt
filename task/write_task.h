@@ -5,10 +5,10 @@
 #ifndef XFILECRYPT_TASK_WRITE_WRITE_TASK_H_
 #define XFILECRYPT_TASK_WRITE_WRITE_TASK_H_
 
+#include "task_base.h"
+
 #include <string>
 #include <fstream>
-
-#include "task_base.h"
 
 /**
  * @brief 写出任务

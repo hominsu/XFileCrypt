@@ -5,13 +5,14 @@
 #ifndef XFILECRYPT_TASK_TASK_BASE_H_
 #define XFILECRYPT_TASK_TASK_BASE_H_
 
+#include "../x_thread_pool/x_task.h"
+
 #include <list>
 #include <memory>
 #include <memory_resource>
+#include <atomic>
 #include <shared_mutex>
 #include <condition_variable>
-
-#include "../x_thread_pool/x_task.h"
 
 class Data;
 
@@ -21,6 +22,8 @@ class Data;
 class TaskBase : public XTask<size_t> {
  public:
   std::condition_variable_any cv_;
+  std::atomic<bool> next_status_ = false;  // 下游状态
+  std::atomic<bool> prev_status_ = false;  // 上游状态
 
  protected:
   size_t data_bytes_{}; ///< 处理的数据的字节数

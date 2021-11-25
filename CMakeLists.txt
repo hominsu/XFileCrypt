@@ -26,6 +26,8 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     message(STATUS "Load include directories from /opt/homebrew/include")
     SET(OPENSSL_ROOT_DIR /opt/homebrew/Cellar/openssl@1.1/1.1.1l_1)
     SET(OPENSSL_INCLUDE_DIR /opt/homebrew/Cellar/openssl@1.1/1.1.1l_1/include)
+#    SET(OPENSSL_ROOT_DIR /opt/homebrew/Cellar/openssl@3/3.0.0_1)
+#    SET(OPENSSL_INCLUDE_DIR /opt/homebrew/Cellar/openssl@3/3.0.0_1/include)
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
     # if msvc
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
@@ -48,12 +50,12 @@ endif ()
 # debug, ARCHIVE means static lib, LIBRARY means dynamic lib
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin)
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin)
 
 # release
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin)
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin)
 
 
 # ============================== find_package ==============================

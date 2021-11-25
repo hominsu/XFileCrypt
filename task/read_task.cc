@@ -37,13 +37,16 @@ void ReadTask::Main() {
     return;
   }
 
+  // 设置下游节点的上游状态
+  next_->prev_status_ = true;
+
   while (is_running()) {
     if (ifs_.eof()) {
       break;
     }
 
     // 当下游节点的数据块总和超过 10MB 时阻塞
-    {
+    if (next_status_) {
       std::unique_lock<std::shared_mutex> lock(mutex_);
       cv_.wait(mutex_, [this]() -> bool { return next_->DataListSize() <= 1024 * 10; });
     }
@@ -78,9 +81,13 @@ void ReadTask::Main() {
     }
   }
   ifs_.close();
+
 #ifdef Debug
   std::cout << std::endl << "ReadTask::Main() End, thread id: " << std::this_thread::get_id() << std::endl;
 #endif
+
+  // 设置下游节点的上游状态
+  next_->prev_status_ = false;
 
   set_return(data_bytes_);
 }

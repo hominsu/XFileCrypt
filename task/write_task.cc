@@ -32,12 +32,20 @@ void WriteTask::Main() {
 
   size_t write_bytes = 0;
 
+  // 设置上游节点的下游状态
+  prev_->next_status_ = true;
+
   if (!OpenFile()) {
     set_return(0);
     return;
   }
 
   while (is_running) {
+    // 当数据块总和小于 1MB 时通知上游，解除阻塞，继续读文件
+    if (prev_status_ && DataListSize() <= 1024) {
+      prev_->cv_.notify_one();
+    }
+
     auto data = PopFront(); // 弹出一个数据块指针
     if (nullptr == data) {
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
