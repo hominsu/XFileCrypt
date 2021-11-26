@@ -28,13 +28,20 @@ void CryptTask::Main() {
 #endif
   size_t crypt_bytes = 0;
 
-  const size_t data_size = KB(8);
-  const size_t up_data_limit_size = MB(5);
-  static_assert(up_data_limit_size > data_size, "up_data_limit_size must greater than data_size");
+  // 设置上游节点的下游状态
+  prev_->next_status_ = true;
+  // 设置下游节点的上游状态
+  next_->prev_status_ = true;
 
   while (is_running) {
+    // 当下游节点的数据块总和超过 10MB 时阻塞
+    if (next_status_) {
+      std::unique_lock<std::shared_mutex> lock(mutex_);
+      cv_.wait(mutex_, [this]() -> bool { return next_->DataListSize() <= 1024 * 10; });
+    }
+
     // 当数据块总和小于 1MB 时通知上游，解除阻塞，继续读文件
-    if (DataListNum() <= LimitNum(up_data_limit_size, data_size)) {
+    if (prev_status_ && DataListSize() <= 1024) {
       prev_->cv_.notify_one();
     }
 
@@ -43,6 +50,7 @@ void CryptTask::Main() {
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
       continue;
     }
+
     auto out = Data::Make(memory_resource_);
     size_t out_size = data->size() + AesCrypt::GetMaxPaddingSize(data->size());
     out->New(out_size);
@@ -80,9 +88,13 @@ void CryptTask::Main() {
       break;
     }
   }
+
 #ifdef Debug
   std::cout << std::endl << "XCryptTask::Main() End, thread id: " << std::this_thread::get_id() << std::endl;
 #endif
+
+  // 设置下游节点的上游状态
+  next_->prev_status_ = false;
 
   set_return(crypt_bytes);
 }
