@@ -28,21 +28,32 @@ void CryptTask::Main() {
 #endif
   size_t crypt_bytes = 0;
 
+  constexpr size_t data_size = KB(8);
+  constexpr size_t up_data_limit_size = MB(5);
+  constexpr size_t down_data_limit_size = MB(20);
+
+  // 编译期异常检测
+  static_assert(data_size > KB(1) && data_size < MB(1), "data_size must between 1KB and 1MB");
+  static_assert(up_data_limit_size > data_size, "up_data_limit_size must greater than data_size");
+  static_assert(down_data_limit_size > data_size, "down_data_limit_size must greater than data_size");
+
   // 设置上游节点的下游状态
   prev_->next_status_ = true;
   // 设置下游节点的上游状态
   next_->prev_status_ = true;
 
   while (is_running) {
-    // 当下游节点的数据块总和超过 10MB 时阻塞
-    if (next_status_) {
-      std::unique_lock<std::shared_mutex> lock(mutex_);
-      cv_.wait(mutex_, [this]() -> bool { return next_->DataListSize() <= 1024 * 10; });
+    // 当数据块总和小于 5MB 时通知上游，解除阻塞，继续读文件
+    if (prev_status_ && DataListNum() <= LimitNum(up_data_limit_size, data_size)) {
+      prev_->cv_.notify_one();
     }
 
-    // 当数据块总和小于 1MB 时通知上游，解除阻塞，继续读文件
-    if (prev_status_ && DataListSize() <= 1024) {
-      prev_->cv_.notify_one();
+    // 当下游节点的数据块总和超过 20MB 时阻塞
+    if (next_status_) {
+      std::unique_lock<std::shared_mutex> lock(mutex_);
+      cv_.wait(mutex_, [&]() -> bool {
+        return next_->DataListNum() <= LimitNum(down_data_limit_size, data_size);
+      });
     }
 
     auto data = PopFront();

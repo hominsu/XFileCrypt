@@ -37,6 +37,13 @@ void ReadTask::Main() {
     return;
   }
 
+  constexpr size_t data_size = KB(512);
+  constexpr size_t down_data_limit_size = MB(20);
+
+  // 编译期异常检测
+  static_assert(data_size > KB(1) && data_size < MB(1), "data_size must between 1KB and 1MB");
+  static_assert(down_data_limit_size > data_size, "down_data_limit_size must greater than data_size");
+
   // 设置下游节点的上游状态
   next_->prev_status_ = true;
 
@@ -45,15 +52,16 @@ void ReadTask::Main() {
       break;
     }
 
-    // 当下游节点的数据块总和超过 10MB 时阻塞
+    // 当下游节点的数据块总和超过 20MB 时阻塞
     if (next_status_) {
       std::unique_lock<std::shared_mutex> lock(mutex_);
-      cv_.wait(mutex_, [this]() -> bool { return next_->DataListSize() <= 1024 * 10; });
+      cv_.wait(mutex_, [&]() -> bool {
+        return next_->DataListNum() <= LimitNum(down_data_limit_size, data_size);
+      });
     }
 
     // 创建内存池空间管理对象
     auto data = Data::Make(memory_resource_);
-    int data_size = 1024;
 
     // 申请空间
     auto buf = data->New(data_size);
@@ -73,7 +81,7 @@ void ReadTask::Main() {
       data->set_end(true);
     }
 #ifdef Debug
-//    std::cout << "[" << ifs_.gcount() << "]" << std::flush;
+    //    std::cout << "[" << ifs_.gcount() << "]" << std::flush;
 #endif
 
     if (nullptr != next_) {

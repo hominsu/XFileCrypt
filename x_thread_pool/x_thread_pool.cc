@@ -25,18 +25,10 @@ size_t XThreadPool::Init() {
 
   auto hardware_thread_num = std::thread::hardware_concurrency();
 
-  if (hardware_thread_num < 4) {
-    thread_nums_ = 3;
+  if (hardware_thread_num > 1) {
+    thread_nums_ = hardware_thread_num + hardware_thread_num / 2;
   } else {
-    switch (hardware_thread_num % 3) {
-      case 0:thread_nums_ = hardware_thread_num;
-        break;
-      case 1:thread_nums_ = hardware_thread_num + 2;
-        break;
-      case 2:thread_nums_ = hardware_thread_num + 4;
-        break;
-      default:exit(EXIT_FAILURE);
-    }
+    thread_nums_ = 3;
   }
 
   // 处理异常
