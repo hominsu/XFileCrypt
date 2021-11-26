@@ -5,13 +5,13 @@
 #ifndef XFILECRYPT_TASK_TASK_BASE_H_
 #define XFILECRYPT_TASK_TASK_BASE_H_
 
+#include "../x_thread_pool/x_task.h"
+
 #include <list>
 #include <memory>
 #include <memory_resource>
 #include <shared_mutex>
 #include <condition_variable>
-
-#include "../x_thread_pool/x_task.h"
 
 class Data;
 
@@ -56,7 +56,7 @@ class TaskBase : public XTask<size_t> {
    * @brief 获取数据块列表长度
    * @return
    */
-  size_t DataListSize();
+  size_t DataListNum();
 
   /**
    * @brief 给对象传递数据，线程安全

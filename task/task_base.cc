@@ -34,7 +34,7 @@ void TaskBase::set_prev(std::shared_ptr<TaskBase> _prev) {
  * @brief 获取数据块列表长度
  * @return
  */
-size_t TaskBase::DataListSize() {
+size_t TaskBase::DataListNum() {
   // 共享锁
   std::shared_lock<std::shared_mutex> lock(mutex_);
   return datas_.size();

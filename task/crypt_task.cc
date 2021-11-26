@@ -28,9 +28,13 @@ void CryptTask::Main() {
 #endif
   size_t crypt_bytes = 0;
 
+  const size_t data_size = KB(8);
+  const size_t up_data_limit_size = MB(5);
+  static_assert(up_data_limit_size > data_size, "up_data_limit_size must greater than data_size");
+
   while (is_running) {
     // 当数据块总和小于 1MB 时通知上游，解除阻塞，继续读文件
-    if (DataListSize() <= 1024) {
+    if (DataListNum() <= LimitNum(up_data_limit_size, data_size)) {
       prev_->cv_.notify_one();
     }
 

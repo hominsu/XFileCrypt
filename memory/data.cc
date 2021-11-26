@@ -94,6 +94,14 @@ void Data::set_size(size_t _size) {
 }
 
 /**
+ * @brief 获取分配的内存大小
+ * @return size_t 分配的内存大小
+ */
+size_t Data::memory_size() const {
+  return memory_size_;
+}
+
+/**
  * @brief 是否是文件结尾
  * @return true or false
  */

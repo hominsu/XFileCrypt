@@ -2,31 +2,13 @@
 // Created by Homin Su on 2021/10/2.
 //
 
+#include "memory/data.h"
+#include "task/file_crypt.h"
+
 #include <iostream>
 #include <string>
 #include <list>
 #include <filesystem>
-
-#include "task/file_crypt.h"
-
-enum class Unit {
-  Byte, KB, MB, GB
-};
-
-template<typename Ts>
-double convert(Ts _size, Unit _unit) {
-  auto result = static_cast<double>(_size);
-
-  switch (_unit) {
-    case Unit::GB: result /= 1024;
-    case Unit::MB: result /= 1024;
-    case Unit::KB: result /= 1024;
-    case Unit::Byte: result /= 1;
-    default:break;
-  }
-
-  return result;
-}
 
 int main(int _argc, char *_argv[]) {
   if (_argc != 5) {
@@ -110,15 +92,15 @@ int main(int _argc, char *_argv[]) {
       std::chrono::system_clock::now() - start_time_point).count();
 
   printf("\nUsage time: %lld ms\n", usage_times);
-  printf("\tRead bytes: %lf MB\n", convert(read_bytes, Unit::MB));
-  printf("\tCrypt bytes: %lf MB\n", convert(crypt_bytes, Unit::MB));
-  printf("\tWrite bytes: %lf MB\n", convert(write_bytes, Unit::MB));
+  printf("\tRead bytes: %lf MB\n", UnitConvert(read_bytes, Unit::MB));
+  printf("\tCrypt bytes: %lf MB\n", UnitConvert(crypt_bytes, Unit::MB));
+  printf("\tWrite bytes: %lf MB\n", UnitConvert(write_bytes, Unit::MB));
 
   auto megabytes_per_second = static_cast<double>(read_bytes) / (static_cast<double>(usage_times) / 1000);
 
   printf("\nSpeed: %lf MB/s, %lf mbps\n",
-         convert(megabytes_per_second, Unit::MB),
-         convert(megabytes_per_second, Unit::MB) * 8);
+         UnitConvert(megabytes_per_second, Unit::MB),
+         UnitConvert(megabytes_per_second, Unit::MB) * 8);
 
   return 0;
 }

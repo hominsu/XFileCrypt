@@ -37,6 +37,10 @@ void ReadTask::Main() {
     return;
   }
 
+  const size_t data_size = KB(8);
+  const size_t down_data_limit_size = MB(20);
+  static_assert(down_data_limit_size > data_size, "down_data_limit_size must greater than data_size");
+
   while (is_running()) {
     if (ifs_.eof()) {
       break;
@@ -45,12 +49,13 @@ void ReadTask::Main() {
     // 当下游节点的数据块总和超过 10MB 时阻塞
     {
       std::unique_lock<std::shared_mutex> lock(mutex_);
-      cv_.wait(mutex_, [this]() -> bool { return next_->DataListSize() <= 1024 * 10; });
+      cv_.wait(mutex_, [this]() -> bool {
+        return (next_->DataListNum() <= LimitNum(down_data_limit_size, data_size));
+      });
     }
 
     // 创建内存池空间管理对象
     auto data = Data::Make(memory_resource_);
-    int data_size = 1024;
 
     // 申请空间
     auto buf = data->New(data_size);

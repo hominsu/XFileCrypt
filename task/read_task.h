@@ -5,10 +5,10 @@
 #ifndef XFILECRYPT_TASK_READ_READ_TASK_H_
 #define XFILECRYPT_TASK_READ_READ_TASK_H_
 
+#include "task_base.h"
+
 #include <string>
 #include <fstream>
-
-#include "task_base.h"
 
 /**
  * @brief 读取任务
