@@ -6,42 +6,63 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
             CACHE STRING "Vcpkg toolchain file")
 endif ()
 
-project(XFileCrypt)
+# get git tag version
+EXECUTE_PROCESS(COMMAND git describe --tags
+        TIMEOUT 10
+        OUTPUT_VARIABLE GIT_VERSION
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
 
+# setting project info
+project(XFileCrypt
+        LANGUAGES CXX
+        VERSION ${GIT_VERSION}
+        HOMEPAGE_URL "https://github.com/hominsu/XFileCrypt")
+
+# setting definitions
+add_definitions(-DPROJECT_NAME=\"${PROJECT_NAME}\")
+add_definitions(-DBUILD_VERSION=\"${GIT_VERSION}\")
+add_definitions(-DHOMEPAGE_URL=\"${PROJECT_HOMEPAGE_URL}\")
+MESSAGE(STATUS "Building from git tag ${GIT_VERSION}")
+MESSAGE(STATUS "Home page url: ${PROJECT_HOMEPAGE_URL}")
+
+# setting cpp standard version
 set(CMAKE_CXX_STANDARD 17)
+
 
 # ============================== select operating system  ==============================
 message("")
 message("Operation system is ${CMAKE_SYSTEM}")
 message("Current compiler: ${CMAKE_CXX_COMPILER_ID}")
-if (CMAKE_SYSTEM_NAME MATCHES "Linux")
-    link_directories(/usr/local/lib)
-    include_directories(/usr/local/include)
-    message(STATUS "Load link directories from /usr/local/lib")
-    message(STATUS "Load include directories from /usr/local/include")
-elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     link_directories(/opt/homebrew/lib)
     include_directories(/opt/homebrew/include)
     message(STATUS "Load link directories from /opt/homebrew/lib")
     message(STATUS "Load include directories from /opt/homebrew/include")
     SET(OPENSSL_ROOT_DIR /opt/homebrew/Cellar/openssl@1.1/1.1.1l_1)
     SET(OPENSSL_INCLUDE_DIR /opt/homebrew/Cellar/openssl@1.1/1.1.1l_1/include)
-#    SET(OPENSSL_ROOT_DIR /opt/homebrew/Cellar/openssl@3/3.0.0_1)
-#    SET(OPENSSL_INCLUDE_DIR /opt/homebrew/Cellar/openssl@3/3.0.0_1/include)
+    #    SET(OPENSSL_ROOT_DIR /opt/homebrew/Cellar/openssl@3/3.0.0_1)
+    #    SET(OPENSSL_INCLUDE_DIR /opt/homebrew/Cellar/openssl@3/3.0.0_1/include)
+elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
+    link_directories(/usr/local/lib)
+    include_directories(/usr/local/include)
+    message(STATUS "Load link directories from /usr/local/lib")
+    message(STATUS "Load include directories from /usr/local/include")
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
-    # if msvc
-    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-        add_compile_options(/wd4819)
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib")
-    # if mingw
-    elseif  ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    if (MSVC)   # if msvc
+        # use the static C/CXX library for all build types; if Debug, set MultiThreadedDebug(MTd), else, set MultiThreaded(MT)
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+        # setting charset
+        add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+        add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+    elseif (MINGW)  # if mingw
         # setting vcpkg
         if (DEFINED ENV{VCPKG_DEFAULT_TRIPLET} AND NOT DEFINED VCPKG_TARGET_TRIPLET)
             set(VCPKG_TARGET_TRIPLET "$ENV{VCPKG_DEFAULT_TRIPLET}" CACHE STRING "")
         endif ()
     endif ()
 else ()
-    message(FATAL_ERROR "Platform ${CMAKE_SYSTEM_NAME} is not support for this project")
+    message(FATAL_ERROR "Platform ${CMAKE_SYSTEM} is not support for this project")
 endif ()
 
 
@@ -66,7 +87,7 @@ if (Threads_FOUND)
 endif ()
 
 # OpenSSL
-set(OPENSSL_USE_STATIC_LIBS true)
+#set(OPENSSL_USE_STATIC_LIBS true)
 find_package(OpenSSL REQUIRED)
 if (OPENSSL_FOUND)
     message(STATUS "OPENSSL_VERSION = ${OPENSSL_VERSION}")
@@ -104,19 +125,18 @@ if (${BUILD_TEST})
     add_subdirectory(ctest/file_test)
 endif ()
 
-# dynamic lib
-add_library(aes_dynamic_lib SHARED "crypt/aes_crypt.cc")
-target_link_libraries(aes_dynamic_lib OpenSSL::Crypto)
-
+# des dynamic lib and static lib
 add_library(des_dynamic_lib SHARED "crypt/des_crypt.cc")
 target_link_libraries(des_dynamic_lib OpenSSL::Crypto)
-
-# static lib
-add_library(aes_static_lib STATIC "crypt/aes_crypt.cc")
-target_link_libraries(aes_static_lib OpenSSL::Crypto)
-
 add_library(des_static_lib STATIC "crypt/des_crypt.cc")
 target_link_libraries(des_static_lib OpenSSL::Crypto)
 
+# aes dynamic lib and static lib
+add_library(aes_dynamic_lib SHARED "crypt/aes_crypt.cc")
+target_link_libraries(aes_dynamic_lib OpenSSL::Crypto)
+add_library(aes_static_lib STATIC "crypt/aes_crypt.cc")
+target_link_libraries(aes_static_lib OpenSSL::Crypto)
+
+
 add_executable(${PROJECT_NAME} ${ProjectSRC})
-target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads aes_static_lib)
+target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads aes_static_lib -static)

@@ -5,16 +5,20 @@
 #include "memory/data.h"
 #include "task/file_crypt.h"
 
+#include <cstdio>
 #include <iostream>
 #include <string>
 #include <list>
 #include <filesystem>
 
 int main(int _argc, char *_argv[]) {
-  if (_argc != 5) {
-    std::cerr << "param error!" << std::endl;
-    std::cout << "\tEncrypt folder: " << _argv[0] << " -e src_dir dst_dir password" << std::endl;
-    std::cout << "\tDecrypt folder: " << _argv[0] << " -d src_dir dst_dir password" << std::endl;
+  if (_argc == 2 && (std::string(_argv[1]) == "-v" || std::string(_argv[1]) == "--version")) {
+    printf("%s version %s\n\n%s homepage url: %s\n", PROJECT_NAME, BUILD_VERSION, PROJECT_NAME, HOMEPAGE_URL);
+    exit(EXIT_SUCCESS);
+  } else if (_argc != 5) {
+    printf("%s: param error!\n\n", _argv[0]);
+    printf("\tEncrypt folder: %s -e src_dir dst_dir password\n", _argv[0]);
+    printf("\tDecrypt folder: %s -d src_dir dst_dir password\n", _argv[0]);
     exit(EXIT_FAILURE);
   }
 
