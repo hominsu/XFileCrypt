@@ -6,19 +6,20 @@ EXECUTE_PROCESS(COMMAND git describe --tags
         OUTPUT_VARIABLE GIT_VERSION
         OUTPUT_STRIP_TRAILING_WHITESPACE
         )
+string(REGEX MATCH "([0-9]+)\\.([0-9]+)\\.([0-9+])" BUILD_VERSION ${GIT_VERSION})
 
 # setting project info
 project(XFileCrypt
         LANGUAGES CXX
-        VERSION ${GIT_VERSION}
+        VERSION ${BUILD_VERSION}
         HOMEPAGE_URL "https://github.com/hominsu/XFileCrypt")
 
 # setting definitions
 add_definitions(-DPROJECT_NAME=\"${PROJECT_NAME}\")
-add_definitions(-DBUILD_VERSION=\"${GIT_VERSION}\")
+add_definitions(-DBUILD_VERSION=\"${BUILD_VERSION}\")
 add_definitions(-DHOMEPAGE_URL=\"${PROJECT_HOMEPAGE_URL}\")
 message("")
-MESSAGE(STATUS "Building from git tag ${GIT_VERSION}")
+MESSAGE(STATUS "Building from git tag ${BUILD_VERSION}")
 MESSAGE(STATUS "Home page url: ${PROJECT_HOMEPAGE_URL}")
 
 # setting cpp standard version
