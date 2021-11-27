@@ -50,6 +50,7 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
     message(STATUS "Load include directories from /usr/local/include")
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
     if (MSVC)   # if msvc
+        # because opencv is use libcmt, so don't use dll
         # use the static C/CXX library for all build types; if Debug, set MultiThreadedDebug(MTd), else, set MultiThreaded(MT)
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
         # setting charset
