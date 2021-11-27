@@ -17,6 +17,7 @@ project(XFileCrypt
 add_definitions(-DPROJECT_NAME=\"${PROJECT_NAME}\")
 add_definitions(-DBUILD_VERSION=\"${GIT_VERSION}\")
 add_definitions(-DHOMEPAGE_URL=\"${PROJECT_HOMEPAGE_URL}\")
+message("")
 MESSAGE(STATUS "Building from git tag ${GIT_VERSION}")
 MESSAGE(STATUS "Home page url: ${PROJECT_HOMEPAGE_URL}")
 
@@ -86,7 +87,7 @@ if (Threads_FOUND)
 endif ()
 
 # OpenSSL
-#set(OPENSSL_USE_STATIC_LIBS true)
+set(OPENSSL_USE_STATIC_LIBS true)
 find_package(OpenSSL REQUIRED)
 if (OPENSSL_FOUND)
     message(STATUS "OPENSSL_VERSION = ${OPENSSL_VERSION}")

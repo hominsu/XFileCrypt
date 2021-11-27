@@ -2,16 +2,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.19)
 
 project(file_test)
 
-# OpenSSL
-set(OPENSSL_USE_STATIC_LIBS true)
-find_package(OpenSSL REQUIRED)
-if (OPENSSL_FOUND)
-    message(STATUS "OPENSSL_VERSION = ${OPENSSL_VERSION}")
-    message(STATUS "OPENSSL_INCLUDE_DIR = ${OPENSSL_INCLUDE_DIR}")
-    message(STATUS "OPENSSL_LIBRARIES = ${OPENSSL_LIBRARIES}")
-    message("")
-endif ()
-
 file(GLOB ProjectSRC
         "../../x_thread_pool/*.cc"
         "../../crypt/*.cc"
