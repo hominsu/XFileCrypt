@@ -50,8 +50,8 @@ void CryptTask::Main() {
 
     // 当下游节点的数据块总和超过 20MB 时阻塞
     if (next_status_) {
-      std::unique_lock<std::shared_mutex> lock(mutex_);
-      cv_.wait(mutex_, [&]() -> bool {
+      std::unique_lock<std::shared_mutex> lock(cv_mutex_);
+      cv_.wait(cv_mutex_, [&]() -> bool {
         return next_->DataListNum() <= LimitNum(down_data_limit_size, data_size);
       });
     }

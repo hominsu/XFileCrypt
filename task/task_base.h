@@ -31,10 +31,11 @@ class TaskBase : public XTask<size_t> {
   std::shared_ptr<TaskBase> next_; ///< 责任链下游
   std::shared_ptr<TaskBase> prev_; ///< 责任链上游
 
-  mutable std::shared_mutex mutex_;
+  mutable std::shared_mutex cv_mutex_;
 
  private:
   std::list<std::shared_ptr<Data>> datas_;  ///< 数据块
+  mutable std::shared_mutex mutex_;
 
  public:
   /**

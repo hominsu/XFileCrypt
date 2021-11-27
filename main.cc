@@ -84,8 +84,8 @@ int main(int _argc, char *_argv[]) {
     read_bytes += file_crypt->read_bytes_;
     crypt_bytes += file_crypt->crypt_bytes_;
     write_bytes += file_crypt->write_bytes_;
-    //std::cout << ++task_num << ": in: [" << file_crypt->in_file_ << "], out: [" << file_crypt->out_file_ << "]"
-    //          << std::endl;
+    std::cout << ++task_num << ": in: [" << file_crypt->in_file_ << "], out: [" << file_crypt->out_file_ << "]"
+              << std::endl;
   }
 
   auto usage_times = std::chrono::duration_cast<std::chrono::milliseconds>(
