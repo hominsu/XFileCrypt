@@ -140,4 +140,4 @@ target_link_libraries(aes_static_lib OpenSSL::Crypto)
 
 
 add_executable(${PROJECT_NAME} ${ProjectSRC})
-target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads aes_static_lib)
+target_link_libraries(${PROJECT_NAME} PUBLIC Threads::Threads aes_static_lib -static)
