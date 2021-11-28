@@ -1,0 +1,103 @@
+name: Build and Deploy
+
+on:
+  push:
+    tags: [ '*.*.*' ]
+  workflow_dispatch:
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    outputs:
+      upload_url: ${{ steps.set_upload_url.outputs.upload_url }}
+      git_tag: ${{ steps.set_upload_url.outputs.git_tag }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          body: |
+            Changes Release ${{ github.ref }}
+            - First Change
+            - Second Change
+          draft: false
+          prerelease: false
+
+      - name: Set Upload Url
+        id: set_upload_url
+        run: |
+          tag=$(echo ${{ github.ref }} | rev | cut -d/ -f1 | rev)
+          echo "::set-output name=git_tag::$tag"
+          echo "::set-output name=upload_url::${{ steps.create_release.outputs.upload_url }}"
+
+
+  build:
+    name: Build
+    runs-on: ${{ matrix.os }}
+    needs: [ deploy ]
+    strategy:
+      matrix:
+        os: [ windows-latest, ubuntu-latest ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ github.repository }}
+          fetch-depth: 0
+
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -j $(nproc)
+
+      - name: Test
+        working-directory: ${{github.workspace}}/build
+        run: ctest -C ${{env.BUILD_TYPE}}
+
+      - name: Upload result for build job
+        uses: actions/upload-artifact@v2
+        with:
+          name: XFileCrypt-${{ matrix.os }}-cli
+          path: ${{github.workspace}}/build/bin/XFileCrypt-*
+
+      - name: List build
+        run: |
+          ls -R ${{github.workspace}}/build/bin
+
+      - name: Upload Linux Release Asset
+        uses: actions/upload-release-asset@v1
+        if: ${{ contains(${{ matrix.os }}, 'ubuntu') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.deploy.outputs.upload_url }}
+          asset_path: ${{github.workspace}}/build/bin/XFileCrypt-${{ needs.deploy.outputs.git_tag }}-Linux-cli
+          asset_name: XFileCrypt-${{ needs.deploy.outputs.git_tag }}-Linux-cli
+          asset_content_type: application/octet-stream
+
+      - name: Upload Windows Release Asset
+        uses: actions/upload-release-asset@v1
+        if: ${{ contains(${{ matrix.os }}, 'windows') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.deploy.outputs.upload_url }}
+          asset_path: ${{github.workspace}}/build/bin/XFileCrypt-${{ needs.deploy.outputs.git_tag }}-Windows-cli.exe
+          asset_name: XFileCrypt-${{ needs.deploy.outputs.git_tag }}-Windows-cli.exe
+          asset_content_type: application/zip

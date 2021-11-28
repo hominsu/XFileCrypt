@@ -1,0 +1,55 @@
+name: CTest
+
+on:
+  push:
+    branches: [ master, dev ]
+  workflow_dispatch:
+
+jobs:
+  release-test:
+    name: Release-Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ windows-latest, ubuntu-latest ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ github.repository }}
+          fetch-depth: 0
+
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config Release -j $(nproc)
+
+      - name: Test
+        working-directory: ${{github.workspace}}/build
+        run: ctest -C Release
+
+  debug-test:
+    name: Debug-Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ windows-latest, ubuntu-latest ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ github.repository }}
+          fetch-depth: 0
+
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config Debug -j $(nproc)
+
+      - name: Test
+        working-directory: ${{github.workspace}}/build
+        run: ctest -C Debug
