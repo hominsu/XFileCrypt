@@ -3,15 +3,17 @@ name: CTest
 on:
   push:
     branches: [ master, dev ]
+    tags: [ '*.*.*' ]
   workflow_dispatch:
 
 jobs:
-  release-test:
-    name: Release-Test
+  ctest:
+    name: CTest
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ windows-latest, ubuntu-latest ]
+        build_type: [ Debug, Release ]
 
     steps:
       - name: Checkout code
@@ -21,35 +23,17 @@ jobs:
           fetch-depth: 0
 
       - name: Configure CMake
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
+        run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
       - name: Build
-        run: cmake --build ${{github.workspace}}/build --config Release -j $(nproc)
+        run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.build_type }} -j $(nproc)
 
       - name: Test
-        working-directory: ${{github.workspace}}/build
-        run: ctest -C Release
+        working-directory: ${{ github.workspace }}/build
+        run: ctest -C ${{ matrix.build_type }} > CTest-${{ matrix.build_type }}-${{ matrix.os }}.log
 
-  debug-test:
-    name: Debug-Test
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ windows-latest, ubuntu-latest ]
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Upload CTest Log
+        uses: actions/upload-artifact@v2
         with:
-          repository: ${{ github.repository }}
-          fetch-depth: 0
-
-      - name: Configure CMake
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Debug
-
-      - name: Build
-        run: cmake --build ${{github.workspace}}/build --config Debug -j $(nproc)
-
-      - name: Test
-        working-directory: ${{github.workspace}}/build
-        run: ctest -C Debug
+          name: CTest-${{ matrix.build_type }}-${{ matrix.os }}-log-file
+          path: ${{ github.workspace }}/build/CTest-${{ matrix.build_type }}-${{ matrix.os }}.log
