@@ -1,4 +1,4 @@
-name: CTest
+name: Build Test
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  ctest:
-    name: CTest
+  build_test:
+    name: Build Test
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
