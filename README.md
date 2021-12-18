@@ -12,7 +12,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-<!--   <a href="https://github.com/hominsu/TensorRt-Yolov5-JetsonNano">
+<!--   <a href="https://github.com/hominsu/XFileCrypt">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a> -->
 
@@ -21,14 +21,14 @@
   <p align="center">
     多线程的文件加密程序
     <br />
-    <a href="https://github.com/hominsu/TensorRt-Yolov5-JetsonNano"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/hominsu/XFileCrypt"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/hominsu/TensorRt-Yolov5-JetsonNano">View Demo</a>
+    <a href="https://github.com/hominsu/XFileCrypt">View Demo</a>
     ·
-    <a href="https://github.com/hominsu/TensorRt-Yolov5-JetsonNano/issues">Report Bug</a>
+    <a href="https://github.com/hominsu/XFileCrypt/issues">Report Bug</a>
     ·
-    <a href="https://github.com/hominsu/TensorRt-Yolov5-JetsonNano/issues">Request Feature</a>
+    <a href="https://github.com/hominsu/XFileCrypt/issues">Request Feature</a>
   </p>
 </div>
 
