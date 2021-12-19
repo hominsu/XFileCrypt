@@ -2,7 +2,7 @@
 // Created by Homin Su on 2021/11/17.
 //
 
-#include "aes_crypt.h"
+#include "aes_cbc_crypt.h"
 
 #ifdef Debug
 #include <iostream>
@@ -17,7 +17,7 @@
  * @param _password 8 位密钥
  * @return bool
  */
-bool AesCrypt::Init(const std::string &_password, bool _is_encrypt) {
+bool AesCBCCrypt::Init(const std::string &_password, bool _is_encrypt) {
   int key_size = 0;
 
   if (_password.length() <= 16) {
@@ -32,9 +32,9 @@ bool AesCrypt::Init(const std::string &_password, bool _is_encrypt) {
   memcpy(key, _password.c_str(), key_size);
 
   if (_is_encrypt) {
-    AES_set_encrypt_key(static_cast<const unsigned char*>(key), key_size * 8, &key_schedule_);  // 设置密钥
+    AES_set_encrypt_key(static_cast<const unsigned char *>(key), key_size * 8, &key_schedule_);  // 设置密钥
   } else {
-    AES_set_decrypt_key(static_cast<const unsigned char*>(key), key_size * 8, &key_schedule_);  // 设置密钥
+    AES_set_decrypt_key(static_cast<const unsigned char *>(key), key_size * 8, &key_schedule_);  // 设置密钥
   }
 
   return true;
@@ -49,11 +49,15 @@ bool AesCrypt::Init(const std::string &_password, bool _is_encrypt) {
  * @param _is_end 是否加密到结尾
  * @return 返回加密后的数据，有可能大于输入（结尾处）
  */
-size_t AesCrypt::Encrypt(const char *_in_data, size_t _in_size, char *_out_data, bool _is_end) {
+size_t AesCBCCrypt::Encrypt(const char *_in_data, size_t _in_size, char *_out_data, bool _is_end) {
   if (nullptr == _in_data || nullptr == _out_data || _in_size <= 0) {
     return 0;
   }
   size_t write_size = 0;  // 加密后的字节数
+
+  unsigned char iv[AES_BLOCK_SIZE];//加密的初始化向量
+  for(unsigned char & i : iv)//iv一般设置为全0,可以设置其他，但是加密解密要一样就行
+    i=0;
 
   unsigned char in[AES_BLOCK_SIZE] = {0};  // 输入
   unsigned char out[AES_BLOCK_SIZE] = {0}; // 输出
@@ -82,7 +86,8 @@ size_t AesCrypt::Encrypt(const char *_in_data, size_t _in_size, char *_out_data,
       // ????????88888888
       if (padding_num == block_size) {
         // 加密原来的数据
-        AES_ecb_encrypt(static_cast<const unsigned char*>(in), out, &key_schedule_, AES_ENCRYPT);
+        AES_cbc_encrypt(static_cast<const unsigned char *>(in), out, block_size, &key_schedule_, iv, AES_ENCRYPT);
+//        AES_ecb_encrypt(static_cast<const unsigned char *>(in), out, &key_schedule_, AES_ENCRYPT);
         memcpy(_out_data + write_size, &out, block_size);
         write_size += block_size;
 
@@ -96,7 +101,8 @@ size_t AesCrypt::Encrypt(const char *_in_data, size_t _in_size, char *_out_data,
     }
 
     // 加密
-    AES_ecb_encrypt(static_cast<const unsigned char*>(in), out, &key_schedule_, AES_ENCRYPT);
+    AES_cbc_encrypt(static_cast<const unsigned char *>(in), out, block_size, &key_schedule_, iv, AES_ENCRYPT);
+//    AES_ecb_encrypt(static_cast<const unsigned char *>(in), out, &key_schedule_, AES_ENCRYPT);
 
     // 加密好的数据拷贝到 _out_data 中
     memcpy(_out_data + write_size, &out, block_size);
@@ -115,11 +121,15 @@ size_t AesCrypt::Encrypt(const char *_in_data, size_t _in_size, char *_out_data,
  * @param _is_end 是否加密到结尾
  * @return 返回解密后的数据，有可能小雨输入（结尾处）
  */
-size_t AesCrypt::Decrypt(const char *_in_data, size_t _in_size, char *_out_data, bool _is_end) {
+size_t AesCBCCrypt::Decrypt(const char *_in_data, size_t _in_size, char *_out_data, bool _is_end) {
   if (nullptr == _out_data || nullptr == _in_data || _in_size <= 0) {
     return 0;
   }
   size_t write_size = 0;  // 加密后的字节数
+
+  unsigned char iv[AES_BLOCK_SIZE];//加密的初始化向量
+  for(unsigned char & i : iv)//iv一般设置为全0,可以设置其他，但是加密解密要一样就行
+    i=0;
 
   unsigned char in[AES_BLOCK_SIZE] = {0};  // 输入
   unsigned char out[AES_BLOCK_SIZE] = {0}; // 输出
@@ -132,7 +142,8 @@ size_t AesCrypt::Decrypt(const char *_in_data, size_t _in_size, char *_out_data,
     memcpy(in, _in_data + write_size, block_size);
 
     // 解密
-    AES_ecb_encrypt(static_cast<const unsigned char*>(in), out, &key_schedule_, AES_DECRYPT);
+    AES_cbc_encrypt(static_cast<const unsigned char *>(in), out, block_size, &key_schedule_, iv, AES_DECRYPT);
+//    AES_ecb_encrypt(static_cast<const unsigned char *>(in), out, &key_schedule_, AES_DECRYPT);
     data_size = block_size;
 
     // 处理结尾填充: ??22    ?????55555
@@ -162,7 +173,7 @@ size_t AesCrypt::Decrypt(const char *_in_data, size_t _in_size, char *_out_data,
  * @param _data_size
  * @return 需要填充的字节数
  */
-size_t AesCrypt::GetMaxPaddingSize(size_t _data_size) {
+size_t AesCBCCrypt::GetMaxPaddingSize(size_t _data_size) {
   const size_t block_size = AES_BLOCK_SIZE; // 加密数据块大小
   size_t padding_num = block_size - _data_size % block_size;  // 填充数量，同时也是填充的内容，如果是 16 就填充 16
   if (0 == padding_num) {

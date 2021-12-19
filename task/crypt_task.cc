@@ -8,14 +8,14 @@
 #include <thread>
 
 #include "../memory/data.h"
-#include "../crypt/aes_crypt.h"
+#include "../crypt/aes_cbc_crypt.h"
 
 /**
  * @brief 初始化加密任务
  * @param _password 密码
  */
 void CryptTask::Init(const std::string &_password) {
-  crypt_ = std::make_shared<AesCrypt>();
+  crypt_ = std::make_shared<AesCBCCrypt>();
   crypt_->Init(_password, is_encrypt_);
 }
 
@@ -63,7 +63,7 @@ void CryptTask::Main() {
     }
 
     auto out = Data::Make(memory_resource_);
-    size_t out_size = data->size() + AesCrypt::GetMaxPaddingSize(data->size());
+    size_t out_size = data->size() + AesCBCCrypt::GetMaxPaddingSize(data->size());
     out->New(out_size);
 
     size_t crypt_data_size;

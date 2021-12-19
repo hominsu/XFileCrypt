@@ -135,11 +135,11 @@ add_library(des_static_lib STATIC "crypt/des_crypt.cc")
 target_link_libraries(des_static_lib OpenSSL::Crypto)
 
 # aes dynamic lib and static lib
-add_library(aes_dynamic_lib SHARED "crypt/aes_crypt.cc")
+add_library(aes_dynamic_lib SHARED "crypt/aes_cbc_crypt.cc")
 target_link_libraries(aes_dynamic_lib OpenSSL::Crypto)
-add_library(aes_static_lib STATIC "crypt/aes_crypt.cc")
+add_library(aes_static_lib STATIC "crypt/aes_cbc_crypt.cc")
 target_link_libraries(aes_static_lib OpenSSL::Crypto)
 
 
 add_executable(${PROJECT_NAME}-${BUILD_VERSION}-${CMAKE_SYSTEM_NAME}-cli ${ProjectSRC})
-target_link_libraries(${PROJECT_NAME}-${BUILD_VERSION}-${CMAKE_SYSTEM_NAME}-cli PUBLIC Threads::Threads aes_static_lib -static)
+target_link_libraries(${PROJECT_NAME}-${BUILD_VERSION}-${CMAKE_SYSTEM_NAME}-cli PUBLIC Threads::Threads aes_static_lib)
