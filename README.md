@@ -46,6 +46,6 @@
 [issues-url]: https://github.com/hominsu/XFileCrypt/issues
 [license-shield]: https://img.shields.io/github/license/hominsu/XFileCrypt.svg?style=for-the-badge
 [license-url]: https://github.com/hominsu/XFileCrypt/blob/master/LICENSE
-[build-shield]: https://img.shields.io/github/workflow/status/hominsu/XFileCrypt/Build%20and%20Deploy?style=for-the-badge
+[build-shield]: https://img.shields.io/github/workflow/status/hominsu/XFileCrypt/Build%20Test?style=for-the-badge
 [build-url]: https://github.com/hominsu/XFileCrypt/actions/workflows/build_deploy.yml.yml
 
