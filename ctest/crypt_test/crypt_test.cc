@@ -6,7 +6,7 @@
 #include <memory>
 #include <cstring>
 
-#include "../../crypt/aes_crypt.h"
+#include "../../crypt/aes_cbc_crypt.h"
 
 int main(int _argc, char *_argv[]) {
   size_t encrypt_size;
@@ -15,7 +15,7 @@ int main(int _argc, char *_argv[]) {
   char plain_text[1024]{'\0'};
 
   {
-    AesCrypt crypt;
+    AesCBCCrypt crypt;
     crypt.Init(_argv[1], true);
 
     std::string in_str(_argv[2]);
@@ -25,7 +25,7 @@ int main(int _argc, char *_argv[]) {
   }
 
   {
-    AesCrypt crypt;
+    AesCBCCrypt crypt;
     crypt.Init(_argv[1], false);
 
     auto decrypt_size = crypt.Decrypt(cipher_text, encrypt_size, plain_text, true);

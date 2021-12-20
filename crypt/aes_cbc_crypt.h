@@ -2,8 +2,8 @@
 // Created by Homin Su on 2021/11/17.
 //
 
-#ifndef XFILECRYPT_CRYPT_AES_CRYPT_H_
-#define XFILECRYPT_CRYPT_AES_CRYPT_H_
+#ifndef XFILECRYPT_CRYPT_AES_CBC_CRYPT_H_
+#define XFILECRYPT_CRYPT_AES_CBC_CRYPT_H_
 
 #include <string>
 
@@ -12,7 +12,7 @@
 /**
  * @brief Aes 加密
  */
-class AesCrypt {
+class AesCBCCrypt {
  private:
   AES_KEY key_schedule_; ///< 存储密钥
 
@@ -55,4 +55,4 @@ class AesCrypt {
   static size_t GetMaxPaddingSize(size_t _data_size);
 };
 
-#endif //XFILECRYPT_CRYPT_AES_CRYPT_H_
+#endif //XFILECRYPT_CRYPT_AES_CBC_CRYPT_H_
