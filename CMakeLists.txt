@@ -48,7 +48,7 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
     message(STATUS "Load include directories from /usr/local/include")
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
     # setting vcpkg toolchain file
-    set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake
+    set(CMAKE_TOOLCHAIN_FILE D:/Library/vcpkg/scripts/buildsystems/vcpkg.cmake
             CACHE STRING "Vcpkg toolchain file")
 
     if (MSVC)   # if msvc
