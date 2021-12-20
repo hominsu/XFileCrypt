@@ -23,6 +23,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Get Git tag message
+        id: get_git_tag_message
+        run: |
+          tag=$(git log -1 --oneline)
+          echo "::set-output name=tag_message::$tag"
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -33,8 +39,7 @@ jobs:
           release_name: ${{ github.ref }}
           body: |
             Changes Release ${{ github.ref }}
-            - First Change
-            - Second Change
+            - ${{ steps.get_git_tag_message.outputs.tag_message }}
           draft: false
           prerelease: false
 

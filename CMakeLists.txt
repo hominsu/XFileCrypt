@@ -35,8 +35,6 @@ message("Current compiler directory: ${CMAKE_CXX_COMPILER}")
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     link_directories(/opt/homebrew/lib)
     include_directories(/opt/homebrew/include)
-    message(STATUS "Load link directories from /opt/homebrew/lib")
-    message(STATUS "Load include directories from /opt/homebrew/include")
     set(OPENSSL_ROOT_DIR /opt/homebrew/Cellar/openssl@1.1/1.1.1l_1)
     set(OPENSSL_INCLUDE_DIR /opt/homebrew/Cellar/openssl@1.1/1.1.1l_1/include)
     #    set(OPENSSL_ROOT_DIR /opt/homebrew/Cellar/openssl@3/3.0.0_1)
@@ -44,8 +42,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
     link_directories(/usr/local/lib)
     include_directories(/usr/local/include)
-    message(STATUS "Load link directories from /usr/local/lib")
-    message(STATUS "Load include directories from /usr/local/include")
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
     # setting vcpkg toolchain file
     set(CMAKE_TOOLCHAIN_FILE D:/Library/vcpkg/scripts/buildsystems/vcpkg.cmake
@@ -130,16 +126,16 @@ endif ()
 
 # des dynamic lib and static lib
 add_library(des_dynamic_lib SHARED "crypt/des_crypt.cc")
-target_link_libraries(des_dynamic_lib OpenSSL::Crypto)
+target_link_libraries(des_dynamic_lib PUBLIC OpenSSL::Crypto)
 add_library(des_static_lib STATIC "crypt/des_crypt.cc")
-target_link_libraries(des_static_lib OpenSSL::Crypto)
+target_link_libraries(des_static_lib PUBLIC OpenSSL::Crypto)
 
 # aes dynamic lib and static lib
 add_library(aes_dynamic_lib SHARED "crypt/aes_cbc_crypt.cc")
-target_link_libraries(aes_dynamic_lib OpenSSL::Crypto)
+target_link_libraries(aes_dynamic_lib PUBLIC OpenSSL::Crypto)
 add_library(aes_static_lib STATIC "crypt/aes_cbc_crypt.cc")
-target_link_libraries(aes_static_lib OpenSSL::Crypto)
+target_link_libraries(aes_static_lib PUBLIC OpenSSL::Crypto)
 
 
 add_executable(${PROJECT_NAME}-${BUILD_VERSION}-${CMAKE_SYSTEM_NAME}-cli ${ProjectSRC})
-target_link_libraries(${PROJECT_NAME}-${BUILD_VERSION}-${CMAKE_SYSTEM_NAME}-cli PUBLIC Threads::Threads aes_static_lib)
+target_link_libraries(${PROJECT_NAME}-${BUILD_VERSION}-${CMAKE_SYSTEM_NAME}-cli Threads::Threads aes_static_lib -static)

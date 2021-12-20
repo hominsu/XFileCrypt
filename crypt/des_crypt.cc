@@ -2,14 +2,14 @@
 // Created by Homin Su on 2021/10/2.
 //
 
+#include "des_crypt.h"
+
 #ifdef Debug
 #include <iostream>
 #elif Release
 #include <stdexcept>
 #endif
 #include <cstring>
-
-#include "des_crypt.h"
 
 /**
  * @brief 初始化密钥

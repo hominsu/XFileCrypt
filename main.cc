@@ -12,10 +12,16 @@
 #include <filesystem>
 
 int main(int _argc, char *_argv[]) {
+  std::string option;   // 加解密选项
+  std::string src_dir;  // 输入文件夹
+  std::string dst_dir;  // 输入文件夹
+  std::string password; // 密钥
+  bool quiet = false;
+
   if (_argc == 2 && (std::string(_argv[1]) == "-v" || std::string(_argv[1]) == "--version")) {
     printf("%s version %s\n\n%s homepage url: %s\n", PROJECT_NAME, BUILD_VERSION, PROJECT_NAME, HOMEPAGE_URL);
     exit(EXIT_SUCCESS);
-  } else if (_argc != 5) {
+  } else if (_argc < 5) {
     auto pos = std::string(_argv[0]).find_last_of("/\\");
     std::string file_name;
     if (pos != std::string::npos) {
@@ -27,12 +33,18 @@ int main(int _argc, char *_argv[]) {
     printf("\tEncrypt folder: %s -e src_dir dst_dir password\n", file_name.c_str());
     printf("\tDecrypt folder: %s -d src_dir dst_dir password\n", file_name.c_str());
     exit(EXIT_FAILURE);
+  } else if (std::string(_argv[1]) == "-q") {
+    option = _argv[2];    // 加解密选项
+    src_dir = _argv[3];   // 输入文件夹
+    dst_dir = _argv[4];   // 输入文件夹
+    password = _argv[5];  // 密钥
+    quiet = true;
+  } else {
+    option = _argv[1];    // 加解密选项
+    src_dir = _argv[2];   // 输入文件夹
+    dst_dir = _argv[3];   // 输入文件夹
+    password = _argv[4];  // 密钥
   }
-
-  std::string option = _argv[1];    // 加解密选项
-  std::string src_dir = _argv[2];   // 输入文件夹
-  std::string dst_dir = _argv[3];   // 输入文件夹
-  std::string password = _argv[4];  // 密钥
 
   bool is_encrypt = true;
   if ("-e" == option) {
@@ -95,8 +107,10 @@ int main(int _argc, char *_argv[]) {
     read_bytes += file_crypt->read_bytes_;
     crypt_bytes += file_crypt->crypt_bytes_;
     write_bytes += file_crypt->write_bytes_;
-    std::cout << ++task_num << ": in: [" << file_crypt->in_file_ << "], out: [" << file_crypt->out_file_ << "]"
-              << std::endl;
+    if (!quiet) {
+      std::cout << ++task_num << ": in: [" << file_crypt->in_file_ << "], out: [" << file_crypt->out_file_ << "]"
+                << std::endl;
+    }
   }
 
   auto usage_times = std::chrono::duration_cast<std::chrono::milliseconds>(
