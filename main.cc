@@ -16,9 +16,16 @@ int main(int _argc, char *_argv[]) {
     printf("%s version %s\n\n%s homepage url: %s\n", PROJECT_NAME, BUILD_VERSION, PROJECT_NAME, HOMEPAGE_URL);
     exit(EXIT_SUCCESS);
   } else if (_argc != 5) {
-    printf("%s: param error!\n\n", _argv[0]);
-    printf("\tEncrypt folder: %s -e src_dir dst_dir password\n", _argv[0]);
-    printf("\tDecrypt folder: %s -d src_dir dst_dir password\n", _argv[0]);
+    auto pos = std::string(_argv[0]).find_last_of("/\\");
+    std::string file_name;
+    if (pos != std::string::npos) {
+      file_name = std::string(_argv[0]).substr(pos + 1);
+    } else {
+      file_name = _argv[0];
+    }
+    printf("%s: param error!\n\n", file_name.c_str());
+    printf("\tEncrypt folder: %s -e src_dir dst_dir password\n", file_name.c_str());
+    printf("\tDecrypt folder: %s -d src_dir dst_dir password\n", file_name.c_str());
     exit(EXIT_FAILURE);
   }
 
@@ -106,7 +113,7 @@ int main(int _argc, char *_argv[]) {
          UnitConvert(megabytes_per_second, Unit::MB),
          UnitConvert(megabytes_per_second, Unit::MB) * 8);
 
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 // 加密: build/XFileCrypt -e test/src test/enc 1234567887654321
