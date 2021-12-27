@@ -125,6 +125,6 @@
 [issues-url]: https://github.com/hominsu/XFileCrypt/issues
 [license-shield]: https://img.shields.io/github/license/hominsu/XFileCrypt.svg?style=for-the-badge
 [license-url]: https://github.com/hominsu/XFileCrypt/blob/master/LICENSE
-[build-shield]: https://img.shields.io/github/workflow/status/hominsu/XFileCrypt/Build%20Test?style=for-the-badge
-[build-url]: https://github.com/hominsu/XFileCrypt/actions/workflows/build-test.yml
+[build-shield]: https://img.shields.io/github/workflow/status/hominsu/XFileCrypt/CodeQL%20Analysis?style=for-the-badge
+[build-url]: https://github.com/hominsu/XFileCrypt/actions/workflows/code_ql_analysis.yml
 
