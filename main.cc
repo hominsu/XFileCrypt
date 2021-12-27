@@ -130,5 +130,5 @@ int main(int _argc, char *_argv[]) {
   return EXIT_SUCCESS;
 }
 
-// 加密: build/XFileCrypt -e test/src test/enc 1234567887654321
-// 解密: build/XFileCrypt -d test/enc test/dec 1234567887654321
+// 加密: build/bin/XFileCrypt -e test/src test/enc 1234567887654321
+// 解密: build/bin/XFileCrypt -d test/enc test/dec 1234567887654321
