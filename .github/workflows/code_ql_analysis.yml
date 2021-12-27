@@ -12,6 +12,8 @@ jobs:
     strategy:
       matrix:
         os: [ windows-latest, ubuntu-latest ]
+        build_type: [ Debug, Release ]
+
     permissions:
       # required for all workflows
       security-events: write
